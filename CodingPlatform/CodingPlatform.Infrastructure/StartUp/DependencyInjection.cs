@@ -1,4 +1,4 @@
-using CodingPlatform.AppCore.Interfaces.Repositories;
+using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 

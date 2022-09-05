@@ -9,39 +9,40 @@ namespace CodingPlatform.Infrastructure.Repositories;
 public abstract class BaseRepository<TEntity> : IRepository<TEntity>
     where TEntity : BaseEntity
 {
-    private readonly AppDbContext _dbCtx;
+    protected readonly AppDbContext dbCtx;
     
     protected BaseRepository(AppDbContext dbCtx)
     {
-        _dbCtx = dbCtx;
+        this.dbCtx = dbCtx;
     }
 
     public async Task<IEnumerable<TEntity>> GetAllAsync(BaseFilters filters)
     {
-        var results = _dbCtx.Set<TEntity>()
+        var results = dbCtx.Set<TEntity>()
             .Take(filters.Take)
-            .Skip(filters.Page);
+            .Skip(filters.Page * filters.Take);
         
         return await results.ToListAsync();
     }
 
     public async Task<TEntity> GetById(long id)
     {
-        return await _dbCtx.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
+        return await dbCtx.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<TEntity> InsertAsync(TEntity entity)
     {
-        var inserted = await _dbCtx.Set<TEntity>().AddAsync(entity);
-        await _dbCtx.SaveChangesAsync();
+        entity.DateCreated = DateTime.UtcNow;
+        var inserted = await dbCtx.Set<TEntity>().AddAsync(entity);
+        await dbCtx.SaveChangesAsync();
         return inserted.Entity;
     }
 
     public async Task<TEntity> DeleteAsync(long id)
     {
         var entity = await GetById(id);
-        _dbCtx.Set<TEntity>().Remove(entity);
-        await _dbCtx.SaveChangesAsync();
+        dbCtx.Set<TEntity>().Remove(entity);
+        await dbCtx.SaveChangesAsync();
         return entity;
     }
 }

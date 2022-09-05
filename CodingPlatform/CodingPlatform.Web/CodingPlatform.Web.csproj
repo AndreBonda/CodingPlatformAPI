@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+      <UserSecretsId>0c5bc751-d218-4877-9ccd-3849daaba811</UserSecretsId>
+  </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.8">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.5" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CodingPlatform.AppCore\CodingPlatform.AppCore.csproj" />
+      <ProjectReference Include="..\CodingPlatform.Domain\CodingPlatform.Domain.csproj" />
+      <ProjectReference Include="..\CodingPlatform.Infrastructure\CodingPlatform.Infrastructure.csproj" />
+    </ItemGroup>
+
+</Project>
