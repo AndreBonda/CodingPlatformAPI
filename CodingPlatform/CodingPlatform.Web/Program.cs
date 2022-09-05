@@ -2,6 +2,7 @@ using System.Text;
 using CodingPlatform.AppCore.StartUp;
 using CodingPlatform.Infrastructure;
 using CodingPlatform.Infrastructure.StartUp;
+using CodingPlatform.Web.Global;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,9 +46,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey =
-                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JWT:Key").Value)),
-            ValidateIssuer = true,
-            ValidateAudience = true
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection(Consts.JwtConfigSections).Value)),
+            ValidateIssuer = false,
+            ValidateAudience = false
         };
     });
 

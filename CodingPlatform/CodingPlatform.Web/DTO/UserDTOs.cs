@@ -12,7 +12,7 @@ public class UserDto
     public DateTime DateCreated { get; set; }
 }
 
-public class RegisterUserDto
+public class LoginUserDto
 {
     [Required]
     [RegularExpression(Consts.EmailRegex, ErrorMessage = Consts.EmailFormatError)]
@@ -21,9 +21,12 @@ public class RegisterUserDto
     [MinLength(6)]
     [RegularExpression(Consts.PasswordRegex, ErrorMessage = Consts.PasswordFormatError)]
     public string Password { get; set; }
+}
+
+public class RegisterUserDto : LoginUserDto
+{
     [Required]
     [MinLength(3)]
     [RegularExpression(Consts.UsernameRegex, ErrorMessage = Consts.UsernameFormatError)]
     public string Username { get; set; }
-    
 }

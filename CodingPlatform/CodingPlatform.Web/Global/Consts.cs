@@ -10,4 +10,5 @@ public static class Consts
         "Password must contain an uppercase letter, a lowercase letter, a number and a special character";
     public const string UsernameRegex = @"^[A-Za-z0-9]*$";
     public const string UsernameFormatError = @"Username must be an alphanumeric";
+    public const string JwtConfigSections = "JWT:Key";
 }

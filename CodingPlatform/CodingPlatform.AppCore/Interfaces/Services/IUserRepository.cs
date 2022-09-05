@@ -6,5 +6,6 @@ namespace CodingPlatform.AppCore.Interfaces.Services;
 
 public interface IUserRepository : IRepository<User>
 {
-    Task<IEnumerable<User>> GetFiltered(UserFilters f);
+    Task<User> GetUserByEmail(string email);
+    Task<User> GetUserByUsername(string username);
 }

@@ -1,6 +1,10 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Authentication;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Domain.Entities;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CodingPlatform.AppCore.Services;
 
@@ -15,14 +19,54 @@ public class UserService : IUserService
     
     public async Task<User> InsertUserEncryptingPassword(User user, string plainTextPassword)
     {
-        user.PasswordHash = CreatePasswordHash(plainTextPassword);
+        var passwordHash = CreatePasswordHash(plainTextPassword);
+        user.PasswordSalt = passwordHash.PasswordSalt;
+        user.PasswordHash = passwordHash.PasswordHash;
         return await _userRepository.InsertAsync(user);
     }
 
-    private byte[] CreatePasswordHash(string plainTextPassword)
+    public string Login(string email, string plainTextPassword, byte[] salt, byte[] hashPassword, string keyGen)
+    {
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentNullException("email required");
+        if (string.IsNullOrWhiteSpace(plainTextPassword))
+            throw new ArgumentNullException("plain text password required");
+        if (hashPassword == null)
+            throw new ArgumentNullException("hash password required");
+
+        if (!VerifyPassword(plainTextPassword, salt, hashPassword))
+            throw new AuthenticationException("wrong password");
+        
+        return CreateJwt(email, keyGen);
+    }
+
+    private (byte[] PasswordSalt,byte[] PasswordHash) CreatePasswordHash(string plainTextPassword)
     {
         using var hmac = new HMACSHA512();
-        return hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(plainTextPassword));
+        return new(
+            hmac.Key,
+            hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(plainTextPassword)));
+    }
 
+    private bool VerifyPassword(string plainTextPassword, byte[] salt, byte[] hashPassword)
+    {
+        using var hmac = new HMACSHA512(salt);
+        return hashPassword.SequenceEqual(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(plainTextPassword)));
+    }
+
+    private string CreateJwt(string email, string keyGen)
+    {
+        List<Claim> claims = new List<Claim>()
+        {
+            new Claim(ClaimTypes.Email, email)
+        };
+        
+        var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(keyGen));
+        var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.UtcNow.AddDays(1),
+            signingCredentials: cred);
+        
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }
