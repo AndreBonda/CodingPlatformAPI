@@ -30,7 +30,7 @@ public class UserController : ControllerBase
             return BadRequest("Email already inserted");
 
         if (await _userRepository.GetUserByUsername(param.Username) != null)
-            return BadRequest(("Username already inserted"));
+            return BadRequest("Username already inserted");
 
         var user = await _userService.InsertUserEncryptingPassword(
             new User()
