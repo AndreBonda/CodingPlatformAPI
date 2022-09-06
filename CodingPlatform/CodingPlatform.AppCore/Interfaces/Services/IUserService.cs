@@ -6,7 +6,7 @@ public interface IUserService
 {
     Task<User> InsertUserEncryptingPassword(User user, string plainTextPassword);
     /// <summary>
-    /// Check the password provided and generate a JWT
+    /// Login the user generating a jwt
     /// </summary>
     /// <param name="email"></param>
     /// <param name="plainTextPassword"></param>

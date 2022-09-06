@@ -32,6 +32,8 @@ public class UserService : IUserService
             throw new ArgumentNullException("plain text password required");
         if (hashPassword == null)
             throw new ArgumentNullException("hash password required");
+        if (salt == null)
+            throw new ArgumentNullException("salt password required");
 
         if (!VerifyPassword(plainTextPassword, salt, hashPassword))
             throw new AuthenticationException("wrong password");
