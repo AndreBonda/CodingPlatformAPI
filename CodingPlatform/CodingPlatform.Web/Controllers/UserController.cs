@@ -54,7 +54,7 @@ public class UserController : ControllerBase
     {
         var user = await _userRepository.GetUserByEmail(param.Email);
         
-        if (user == null) return BadRequest("Email does not exist");
+        if (user == null) return NotFound("Email does not exist");
 
         try
         {

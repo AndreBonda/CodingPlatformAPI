@@ -10,8 +10,7 @@ public class TournamentRepository : BaseRepository<Tournament>, ITournamentRepos
     public TournamentRepository(AppDbContext dbCtx) : base(dbCtx)
     {
     }
-
-
+    
     public async Task<IEnumerable<Tournament>>GetFiltered(TournamentFilters f = null)
     {
         f ??= new TournamentFilters();
@@ -31,5 +30,40 @@ public class TournamentRepository : BaseRepository<Tournament>, ITournamentRepos
 
         return await dbCtx.Set<Tournament>()
             .FirstOrDefaultAsync(t => t.Name.ToLower() == name.ToLower());
+    }
+
+    public async Task<bool> IsUserSubscribed(long tournamentId, long userId)
+    {
+        return await dbCtx.Set<UserTournamentParticipations>()
+            .AnyAsync(utp => utp.Tournament.Id == tournamentId && utp.User.Id == userId);
+    }
+
+    public async Task<User> GetTournamentAdmin(long tournamentId)
+    {
+        var tournament = await dbCtx.Set<Tournament>()
+            .Include(t => t.Admin)
+            .FirstOrDefaultAsync(x => x.Id == tournamentId);
+        
+        return tournament?.Admin;
+    }
+
+    public async Task<UserTournamentParticipations> AddSubscription(Tournament tournament, User user)
+    {
+        var inserted = await dbCtx.Set<UserTournamentParticipations>()
+            .AddAsync(new UserTournamentParticipations()
+            {
+                Tournament = tournament,
+                User = user,
+                DateCreated = DateTime.UtcNow
+            });
+        await dbCtx.SaveChangesAsync();
+        return inserted.Entity;
+    }
+
+    public async Task<long> GetSubscriberNumber(long tournamentId)
+    {
+        return await dbCtx.Set<UserTournamentParticipations>()
+            .Where(t => t.Tournament.Id == tournamentId)
+            .CountAsync();
     }
 }

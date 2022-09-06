@@ -102,7 +102,7 @@ public class UserControllerTests
         var result = await _userController.Login(new LoginUserDto());
         
         Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.TypeOf<BadRequestObjectResult>());
+        Assert.That(result, Is.TypeOf<NotFoundObjectResult>());
     }
 
     [Test]

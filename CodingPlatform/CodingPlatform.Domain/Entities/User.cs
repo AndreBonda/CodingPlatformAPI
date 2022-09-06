@@ -14,4 +14,5 @@ public class User : BaseEntity
     public byte[] PasswordHash { get; set; }
     
     public ICollection<Tournament> TournamentsAdmin { get; set; }
+    public ICollection<UserTournamentParticipations> UserTournamentParticipations { get; set; }
 }

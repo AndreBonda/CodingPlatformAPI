@@ -12,37 +12,47 @@ namespace CodingPlatform.Web.Controllers;
 [Authorize]
 public class TournamentController : CustomControllerBase
 {
-    private readonly ITournamentRepository _tournamentRepository;
-    private readonly IUserRepository _userRepository;
-
-    public TournamentController(ITournamentRepository tournamentRepository, IUserRepository userRepository, 
-        IHttpContextAccessor httpCtxAccessor) : base(httpCtxAccessor)
+    private readonly ITournamentService _tournamentService;
+    public TournamentController(IHttpContextAccessor httpCtxAccessor, ITournamentService tournamentService) 
+        : base(httpCtxAccessor)
     {
-        _tournamentRepository = tournamentRepository;
-        _userRepository = userRepository;
+        _tournamentService = tournamentService;
     }
 
     [HttpPost("tournament")]
     public async Task<IActionResult> CreateTournament(CreateTournamentDto param)
     {
-        if (await _tournamentRepository.GetTournamentByName(param.TournamentName) != null)
-            return BadRequest("Tournament name exists.");
+        // if (await _tournamentRepository.GetTournamentByName(param.TournamentName) != null)
+        //     return BadRequest("Tournament name exists.");
+        //
+        // var user = await _userRepository.GetById(GetCurrentUserId());
+        //
+        // var tournament = await _tournamentRepository.InsertAsync(new Tournament()
+        // {
+        //     Name = param.TournamentName,
+        //     MaxParticipants = param.MaxParticipants,
+        //     Admin = user
+        // });
+        //
+        // return Created(nameof(CreateTournament), new TournamentDto()
+        // {
+        //     Id = tournament.Id,
+        //     Name = tournament.Name,
+        //     MaxParticipants = tournament.MaxParticipants,
+        //     DateCreated = tournament.DateCreated
+        // });
 
-        var user = await _userRepository.GetById(GetCurrentUserId());
+        return Ok();
+    }
+    
+    [HttpPost("tournament_subscription/{tournamentId}")]
+    public async Task<IActionResult> TournamentSubscription(long tournamentId)
+    {
+        var result = await _tournamentService.SubscribeUser(tournamentId, GetCurrentUserId());
 
-        var tournament = await _tournamentRepository.InsertAsync(new Tournament()
+        return Created(nameof(TournamentSubscription), new
         {
-            Name = param.TournamentName,
-            MaxParticipants = param.MaxParticipants,
-            Admin = user
-        });
-        
-        return Created(nameof(CreateTournament), new TournamentDto()
-        {
-            Id = tournament.Id,
-            Name = tournament.Name,
-            MaxParticipants = tournament.MaxParticipants,
-            DateCreated = tournament.DateCreated
+            DateCreated = result.DateCreated
         });
     }
 }

@@ -3,6 +3,7 @@ using CodingPlatform.AppCore.StartUp;
 using CodingPlatform.Infrastructure;
 using CodingPlatform.Infrastructure.StartUp;
 using CodingPlatform.Web.Global;
+using CodingPlatform.Web.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,4 +72,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+// Middleware
+app.UseMiddleware<ErrorHandlerMiddleware>();
 app.Run();

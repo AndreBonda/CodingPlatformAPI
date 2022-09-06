@@ -3,6 +3,7 @@ using System;
 using CodingPlatform.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CodingPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220906145019_FixUserTournaments")]
+    partial class FixUserTournaments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,7 +83,7 @@ namespace CodingPlatform.Infrastructure.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CodingPlatform.Domain.Entities.UserTournamentParticipations", b =>
+            modelBuilder.Entity("CodingPlatform.Domain.Entities.UserTournamentPartecipations", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +106,7 @@ namespace CodingPlatform.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserTournamentParticipations");
+                    b.ToTable("UserTournamentPartecipations");
                 });
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.Tournament", b =>
@@ -116,14 +118,14 @@ namespace CodingPlatform.Infrastructure.Migrations
                     b.Navigation("Admin");
                 });
 
-            modelBuilder.Entity("CodingPlatform.Domain.Entities.UserTournamentParticipations", b =>
+            modelBuilder.Entity("CodingPlatform.Domain.Entities.UserTournamentPartecipations", b =>
                 {
                     b.HasOne("CodingPlatform.Domain.Entities.Tournament", "Tournament")
-                        .WithMany("UserTournamentParticipations")
+                        .WithMany("UserTournamentPartecipations")
                         .HasForeignKey("TournamentId");
 
                     b.HasOne("CodingPlatform.Domain.Entities.User", "User")
-                        .WithMany("UserTournamentParticipations")
+                        .WithMany("UserTournamentPartecipations")
                         .HasForeignKey("UserId");
 
                     b.Navigation("Tournament");
@@ -133,14 +135,14 @@ namespace CodingPlatform.Infrastructure.Migrations
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.Tournament", b =>
                 {
-                    b.Navigation("UserTournamentParticipations");
+                    b.Navigation("UserTournamentPartecipations");
                 });
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.User", b =>
                 {
                     b.Navigation("TournamentsAdmin");
 
-                    b.Navigation("UserTournamentParticipations");
+                    b.Navigation("UserTournamentPartecipations");
                 });
 #pragma warning restore 612, 618
         }
