@@ -45,4 +45,12 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
         await dbCtx.SaveChangesAsync();
         return entity;
     }
+
+    protected IQueryable<TEntity> SetPagination(IQueryable<TEntity> query, BaseFilters filters)
+    {
+        query = query
+            .Take(filters.Take)
+            .Skip(filters.Page * filters.Take);
+        return query;
+    }
 }

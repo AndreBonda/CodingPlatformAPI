@@ -42,8 +42,7 @@ public class UserServiceTests
 
         _userRepository.Verify(userRepo => userRepo.InsertAsync(user));
     }
-
-    //[TestCase("email", "password", new byte[0], new byte[0], "keygen", "email")]
+    
     [TestCase("", "password", new byte[0], new byte[0], "keygen", "email")]
     [TestCase(" ", "password", new byte[0], new byte[0], "keygen", "email")]
     [TestCase("email", "", new byte[0], new byte[0], "keygen", "password")]
@@ -55,15 +54,16 @@ public class UserServiceTests
     public void Login_MissingInputArguments_ThrowArgumentNullException(string email, string password, byte[] salt,
         byte[] hashPw, string keyGen, string excMsgExpected)
     {
-        var exc = Assert.Throws<ArgumentNullException>(() => _userService.Login(email, password, salt, hashPw, keyGen));
+        var exc = Assert.ThrowsAsync<ArgumentNullException>(async () => await _userService.Login(email, password, salt, hashPw, keyGen));
         Assert.That(exc.Message, Does.Contain(excMsgExpected).IgnoreCase);
     }
 
     [Test]
     public void Login_WrongPassword_ThrowAuthenticationException()
     {
-        var expectedException = Assert.Throws<AuthenticationException>(
-            () => _userService.Login("email", "password", Array.Empty<byte>(), Array.Empty<byte>(), "keygen"));
+        var expectedException = Assert.ThrowsAsync<AuthenticationException>(
+            async () => await _userService.Login("email", "password", Array.Empty<byte>(), Array.Empty<byte>(), "keygen"));
+
         Assert.That(expectedException.Message, Does.Contain("password").IgnoreCase);
     }
 

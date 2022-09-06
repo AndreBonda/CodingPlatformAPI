@@ -55,6 +55,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // StartUp Infrastructure
 builder.Services.SetupServicesInfrastructure();
 builder.Services.SetupServicesAppCore();
+// Http context accessor
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

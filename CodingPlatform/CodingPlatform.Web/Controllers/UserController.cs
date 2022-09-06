@@ -16,7 +16,8 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly IConfiguration _configuration;
     
-    public UserController(IUserRepository userRepository, IUserService userService, IConfiguration configuration)
+    public UserController(IUserRepository userRepository, IUserService userService, IConfiguration configuration,
+        IHttpContextAccessor httpContextAccessor)
     {
         _userRepository = userRepository;
         _userService = userService;
@@ -57,7 +58,7 @@ public class UserController : ControllerBase
 
         try
         {
-            var jwt = _userService.Login(user.Email, param.Password, user.PasswordSalt, 
+            var jwt = await _userService.Login(user.Email, param.Password, user.PasswordSalt, 
                 user.PasswordHash, _configuration.GetSection(Consts.JwtConfigSections).Value);
             return Ok(jwt);
         }

@@ -4,6 +4,7 @@ using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Domain.Entities;
 using CodingPlatform.Web.Controllers;
 using CodingPlatform.Web.DTO;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NuGet.Frameworks;
@@ -19,6 +20,7 @@ public class UserControllerTests
     private Mock<IUserService> _userService;
     private Mock<IConfiguration> _configuration;
     private Mock<IConfigurationSection> _configurationSection;
+    private Mock<IHttpContextAccessor> _httpCtxAccessor;
     
     [SetUp]
     public void SetUp()
@@ -27,7 +29,9 @@ public class UserControllerTests
         _userService = new Mock<IUserService>();
         _configuration = new Mock<IConfiguration>();
         _configurationSection = new Mock<IConfigurationSection>();
-        _userController = new UserController(_userRepository.Object, _userService.Object, _configuration.Object);
+        _httpCtxAccessor = new Mock<IHttpContextAccessor>();
+        _userController = new UserController(_userRepository.Object, _userService.Object, _configuration.Object,
+            _httpCtxAccessor.Object);
         
         _configurationSection.Setup(s => s.Value).Returns("a");
         _configuration
@@ -135,7 +139,7 @@ public class UserControllerTests
                     It.IsAny<byte[]>(),
                     It.IsAny<byte[]>(),
                     It.IsAny<string>()))
-            .Returns(It.IsAny<string>());
+            .Returns(Task.FromResult(It.IsAny<string>()));
 
         var result = await _userController.Login(new LoginUserDto());
         

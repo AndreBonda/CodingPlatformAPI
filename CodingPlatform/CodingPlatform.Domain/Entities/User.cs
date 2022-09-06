@@ -12,4 +12,6 @@ public class User : BaseEntity
     public byte[] PasswordSalt { get; set; }
     [Required]
     public byte[] PasswordHash { get; set; }
+    
+    public ICollection<Tournament> TournamentsAdmin { get; set; }
 }

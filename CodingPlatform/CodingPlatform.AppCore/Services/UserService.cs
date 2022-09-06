@@ -25,7 +25,7 @@ public class UserService : IUserService
         return await _userRepository.InsertAsync(user);
     }
 
-    public string Login(string email, string plainTextPassword, byte[] salt, byte[] hashPassword, string keyGen)
+    public async Task<string> Login(string email, string plainTextPassword, byte[] salt, byte[] hashPassword, string keyGen)
     {
         if (string.IsNullOrWhiteSpace(email)) throw new ArgumentNullException("email required");
         if (string.IsNullOrWhiteSpace(plainTextPassword))
@@ -37,8 +37,10 @@ public class UserService : IUserService
 
         if (!VerifyPassword(plainTextPassword, salt, hashPassword))
             throw new AuthenticationException("wrong password");
+
+        var user = await _userRepository.GetUserByEmail(email);
         
-        return CreateJwt(email, keyGen);
+        return CreateJwt(user.Id, email, keyGen);
     }
 
     private (byte[] PasswordSalt,byte[] PasswordHash) CreatePasswordHash(string plainTextPassword)
@@ -55,11 +57,12 @@ public class UserService : IUserService
         return hashPassword.SequenceEqual(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(plainTextPassword)));
     }
 
-    private string CreateJwt(string email, string keyGen)
+    private string CreateJwt(long userId, string email, string keyGen)
     {
         List<Claim> claims = new List<Claim>()
         {
-            new Claim(ClaimTypes.Email, email)
+            new Claim(ClaimTypes.Email, email),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
         };
         
         var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(keyGen));

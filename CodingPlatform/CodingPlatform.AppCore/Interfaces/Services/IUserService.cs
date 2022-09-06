@@ -13,5 +13,5 @@ public interface IUserService
     /// <param name="hashPassword"></param>
     /// <param name="keyGen"></param>
     /// <returns>Return JWT</returns>
-    string Login(string email, string plainTextPassword, byte[] salt, byte[] hashPassword, string keyGen);
+    Task<string> Login(string email, string plainTextPassword, byte[] salt, byte[] hashPassword, string keyGen);
 }
