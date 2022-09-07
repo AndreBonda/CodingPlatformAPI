@@ -5,7 +5,7 @@ using CodingPlatform.Domain.Entities;
 using Moq;
 using NUnit.Framework;
 
-namespace CodingPlatform.Web.UnitTests;
+namespace CodingPlatform.AppCore.UnitTests;
 
 [TestFixture]
 public class UserServiceTests

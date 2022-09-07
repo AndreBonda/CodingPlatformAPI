@@ -34,7 +34,7 @@ public class TournamentController : CustomControllerBase
         {
             Id = info.Id,
             Name = info.Name,
-            DateCreated = info.DateCreated,
+            DateCreated = info.DateDateCreated,
             MaxParticipants = info.MaxParticipants,
             UserAdmin = info.UserAdmin,
             SubscriberNumber = info.SubscriberNumber,

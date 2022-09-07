@@ -4,7 +4,6 @@ using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Domain;
 using CodingPlatform.Domain.Entities;
 using CodingPlatform.Domain.Exception;
-using CodingPlatform.Web.Middleware;
 
 namespace CodingPlatform.AppCore.Services;
 
@@ -41,22 +40,15 @@ public class TournamentService : ITournamentService
 
         foreach (var tour in tournaments)
         {
-            var info = new TournamentInfo
-            {
-                Id = tour.Id,
-                Name = tour.Name,
-                MaxParticipants = tour.MaxParticipants,
-                DateCreated = tour.DateCreated
-            };
-
-            info.UserAdmin = (await _tournamentRepository.GetTournamentAdmin(tour.Id)).UserName;
-            info.SubscriberNumber = await _tournamentRepository.GetSubscriberNumber(tour.Id);
+            var adminUserName = (await _tournamentRepository.GetTournamentAdmin(tour.Id)).UserName;
+            var subscriberNumber = await _tournamentRepository.GetSubscriberNumber(tour.Id);
+            var info = new TournamentInfo(tour.Id, tour.Name, tour.MaxParticipants, adminUserName, subscriberNumber,
+                tour.DateCreated);
             tournamentInfos.Add(info);
         }
 
         return tournamentInfos;
     }
-
 
     public async Task<UserTournamentParticipations> SubscribeUser(long tournamentId, long userId)
     {

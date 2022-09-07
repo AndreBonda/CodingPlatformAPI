@@ -1,4 +1,4 @@
-namespace CodingPlatform.Web.Middleware;
+namespace CodingPlatform.Domain.Exception;
 
 [Serializable]
 public class BadRequestException : System.Exception
