@@ -60,7 +60,7 @@ public class TournamentRepository : BaseRepository<Tournament>, ITournamentRepos
         return inserted.Entity;
     }
 
-    public async Task<long> GetSubscriberNumber(long tournamentId)
+    public async Task<int> GetSubscriberNumber(long tournamentId)
     {
         return await dbCtx.Set<UserTournamentParticipations>()
             .Where(t => t.Tournament.Id == tournamentId)

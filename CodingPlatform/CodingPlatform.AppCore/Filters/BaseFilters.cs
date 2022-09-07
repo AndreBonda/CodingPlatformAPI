@@ -1,19 +1,11 @@
 namespace CodingPlatform.AppCore.Filters;
 
-public class BaseFilters
+public abstract class BaseFilters
 {
-    private int? _limit;
-    private int? _page;
+    public int Take { get; }
 
-    public int Take
+    protected BaseFilters(int? take = null)
     {
-        get => _limit ?? 50; 
-        set => _limit = value;
-    }
-
-    public int Page
-    {
-        get => _page ?? 0;
-        set => _page = value;
+        Take = take ?? 50;
     }
 }

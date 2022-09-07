@@ -1,5 +1,7 @@
+using CodingPlatform.AppCore.Filters;
 using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
+using CodingPlatform.Domain;
 using CodingPlatform.Domain.Entities;
 using CodingPlatform.Domain.Exception;
 using CodingPlatform.Web.Middleware;
@@ -17,6 +19,45 @@ public class TournamentService : ITournamentService
         _tournamentRepository = tournamentRepository;
     }
 
+    public async Task<Tournament> Create(string tournamentName, int maxParticipants, long userId)
+    {
+        if (await _tournamentRepository.GetTournamentByName(tournamentName) != null)
+            throw new BadRequestException("Tournament name exists.");
+        
+        var currentUser = await _userRepository.GetById(userId);
+        
+        return await _tournamentRepository.InsertAsync(new Tournament()
+        {
+            Name = tournamentName,
+            MaxParticipants = maxParticipants,
+            Admin = currentUser
+        });
+    }
+
+    public async Task<IEnumerable<TournamentInfo>> GetTournamentsInfo(TournamentFilters filters)
+    {
+        List<TournamentInfo> tournamentInfos = new List<TournamentInfo>();
+        var tournaments = await _tournamentRepository.GetFiltered(filters);
+
+        foreach (var tour in tournaments)
+        {
+            var info = new TournamentInfo
+            {
+                Id = tour.Id,
+                Name = tour.Name,
+                MaxParticipants = tour.MaxParticipants,
+                DateCreated = tour.DateCreated
+            };
+
+            info.UserAdmin = (await _tournamentRepository.GetTournamentAdmin(tour.Id)).UserName;
+            info.SubscriberNumber = await _tournamentRepository.GetSubscriberNumber(tour.Id);
+            tournamentInfos.Add(info);
+        }
+
+        return tournamentInfos;
+    }
+
+
     public async Task<UserTournamentParticipations> SubscribeUser(long tournamentId, long userId)
     {
         var tournament = await _tournamentRepository.GetById(tournamentId);
@@ -33,7 +74,7 @@ public class TournamentService : ITournamentService
         if (await _tournamentRepository.GetSubscriberNumber(tournamentId) == tournament.MaxParticipants)
             throw new BadRequestException("The tournament is full");
         
-        var user = await _userRepository.GetById(userId);
-        return await _tournamentRepository.AddSubscription(tournament, user);
+        var currentUser = await _userRepository.GetById(userId);
+        return await _tournamentRepository.AddSubscription(tournament, currentUser);
     }
 }

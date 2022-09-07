@@ -19,9 +19,8 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
     public async Task<IEnumerable<TEntity>> GetAllAsync(BaseFilters filters)
     {
         var results = dbCtx.Set<TEntity>()
-            .Take(filters.Take)
-            .Skip(filters.Page * filters.Take);
-        
+            .Take(filters.Take);
+
         return await results.ToListAsync();
     }
 
@@ -49,8 +48,7 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
     protected IQueryable<TEntity> SetPagination(IQueryable<TEntity> query, BaseFilters filters)
     {
         query = query
-            .Take(filters.Take)
-            .Skip(filters.Page * filters.Take);
+            .Take(filters.Take);
         return query;
     }
 }

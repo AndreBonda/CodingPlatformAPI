@@ -10,5 +10,5 @@ public interface ITournamentRepository : IRepository<Tournament>
     Task<bool> IsUserSubscribed(long tournamentId, long userId);
     Task<User> GetTournamentAdmin(long tournamentId);
     Task<UserTournamentParticipations> AddSubscription(Tournament tournament, User user);
-    Task<long> GetSubscriberNumber(long tournamentId);
+    Task<int> GetSubscriberNumber(long tournamentId);
 }

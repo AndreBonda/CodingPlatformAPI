@@ -10,6 +10,18 @@ public class TournamentDto
     public DateTime DateCreated { get; set; }
 }
 
+public class TournamentInfoDto : TournamentDto
+{
+    public string UserAdmin { get; set; }
+    public int SubscriberNumber { get; set; }
+    public int AvailableSeats { get; set; }
+}
+
+public class SearchTournamentDto : BaseSearchDto
+{
+    public string TournamentName { get; set; }
+}
+
 public class CreateTournamentDto
 {
     [Required]
