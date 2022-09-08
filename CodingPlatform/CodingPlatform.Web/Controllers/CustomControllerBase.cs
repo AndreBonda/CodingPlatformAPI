@@ -13,9 +13,9 @@ public class CustomControllerBase : ControllerBase
     }
 
     /// <summary>
-    /// TODO: move into service
+    /// TODO: move into service?
+    /// Takes and returns the id of the logged in user from the http context
     /// </summary>
-    /// <returns></returns>
     protected long GetCurrentUserId()
     {
         var userId = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;

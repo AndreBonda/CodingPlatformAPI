@@ -10,4 +10,5 @@ where TEntity : BaseEntity
     Task<TEntity> GetById(long id);
     Task<TEntity> InsertAsync(TEntity entity);
     Task<TEntity> DeleteAsync(long id);
+    Task<TEntity> UpdateAsync(TEntity entity);
 }

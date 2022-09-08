@@ -45,6 +45,17 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
         return entity;
     }
 
+    public async Task<TEntity> UpdateAsync(TEntity entity)
+    {
+        var dbEntity = await GetById(entity.Id);
+        if (dbEntity == null)
+            return null;
+        
+        dbCtx.Entry(dbEntity).CurrentValues.SetValues(entity);
+        await dbCtx.SaveChangesAsync();
+        return dbEntity;
+    }
+
     protected IQueryable<TEntity> SetPagination(IQueryable<TEntity> query, BaseFilters filters)
     {
         query = query

@@ -33,6 +33,9 @@ public class ErrorHandlerMiddleware
                 case BadRequestException:
                     response.StatusCode = (int) HttpStatusCode.BadRequest;
                     break;
+                case ForbiddenException:
+                    response.StatusCode = (int) HttpStatusCode.Forbidden;
+                    break;
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     break;

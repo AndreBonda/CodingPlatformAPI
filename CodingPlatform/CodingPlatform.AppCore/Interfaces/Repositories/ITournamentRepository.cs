@@ -11,4 +11,5 @@ public interface ITournamentRepository : IRepository<Tournament>
     Task<User> GetTournamentAdmin(long tournamentId);
     Task<UserTournamentParticipations> AddSubscription(Tournament tournament, User user);
     Task<int> GetSubscriberNumber(long tournamentId);
+    Task<CurrentChallenge> GetCurrentChallenge(long tournamentId);
 }

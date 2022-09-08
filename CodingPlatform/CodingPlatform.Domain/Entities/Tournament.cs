@@ -9,4 +9,5 @@ public class Tournament : BaseEntity
     public int MaxParticipants { get; set; }
     public User Admin { get; set; }
     public ICollection<UserTournamentParticipations> UserTournamentParticipations { get; set; }
+    public CurrentChallenge CurrentChallenge { get; set; }
 }

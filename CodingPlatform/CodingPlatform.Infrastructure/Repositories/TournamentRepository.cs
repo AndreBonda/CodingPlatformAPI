@@ -66,4 +66,13 @@ public class TournamentRepository : BaseRepository<Tournament>, ITournamentRepos
             .Where(t => t.Tournament.Id == tournamentId)
             .CountAsync();
     }
+
+    public async Task<CurrentChallenge> GetCurrentChallenge(long tournamentId)
+    {
+        var tournament = await dbCtx.Set<Tournament>()
+            .Include(t => t.CurrentChallenge)
+            .FirstOrDefaultAsync(t => t.Id == tournamentId);
+        
+        return tournament?.CurrentChallenge;
+    }
 }
