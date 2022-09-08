@@ -8,6 +8,8 @@ public class Tournament : BaseEntity
     [Required]
     public int MaxParticipants { get; set; }
     public User Admin { get; set; }
-    public ICollection<UserTournamentParticipations> UserTournamentParticipations { get; set; }
-    public CurrentChallenge CurrentChallenge { get; set; }
+
+    public ICollection<UserTournamentParticipations> UserTournamentParticipations { get; set; } =
+        new List<UserTournamentParticipations>();
+    public ICollection<Challenge> Challenges { get; set; } = new List<Challenge>();
 }

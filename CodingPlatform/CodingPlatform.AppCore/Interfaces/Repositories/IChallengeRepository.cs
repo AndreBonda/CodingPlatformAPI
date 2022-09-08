@@ -3,6 +3,7 @@ using CodingPlatform.Domain.Entities;
 
 namespace CodingPlatform.AppCore.Interfaces.Repositories;
 
-public interface ICurrentChallengeRepository : IRepository<CurrentChallenge>
+public interface IChallengeRepository : IRepository<Challenge>
 {
+    Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId);
 }

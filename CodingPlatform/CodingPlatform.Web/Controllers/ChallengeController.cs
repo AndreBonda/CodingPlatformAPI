@@ -17,6 +17,13 @@ public class ChallengeController : CustomControllerBase
     {
         _challengeService = challengeService;
     }
+    
+    [HttpGet("user_active_challenges")]
+    public async Task<IActionResult> GetChallenges()
+    {
+        await _challengeService.GetActiveChallengesByUser(GetCurrentUserId());
+        return Ok();
+    }
 
     [HttpPost("challenge")]
     public async Task<IActionResult> CreateChallenge(CreateChallengeDto param)
@@ -24,7 +31,7 @@ public class ChallengeController : CustomControllerBase
         var challenge = await _challengeService.CreateChallenge(param.TournamentId, param.Title, param.Description,
             param.Hours, GetCurrentUserId(), param.Tips);
         
-        return Created(nameof(CreateChallenge), new CurrentChallengeDto()
+        return Created(nameof(CreateChallenge), new ChallengeDto()
         {
             Id = challenge.Id,
             Title = challenge.Title,
@@ -33,5 +40,12 @@ public class ChallengeController : CustomControllerBase
             EndDate = challenge.EndDate,
             Tips = challenge.Tips?.Select(t => t.Description)
         });
+    }
+
+    [HttpPost("challenge_start")]
+    public async Task<IActionResult> SubmitChallenge()
+    {
+        
+        throw new NotImplementedException();
     }
 }

@@ -3,6 +3,7 @@ using System;
 using CodingPlatform.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CodingPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220908093142_AddTipOrdering")]
+    partial class AddTipOrdering
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +24,7 @@ namespace CodingPlatform.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CodingPlatform.Domain.Entities.Challenge", b =>
+            modelBuilder.Entity("CodingPlatform.Domain.Entities.CurrentChallenge", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -44,46 +46,9 @@ namespace CodingPlatform.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long?>("TournamentId")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TournamentId");
-
-                    b.ToTable("Challenges");
-                });
-
-            modelBuilder.Entity("CodingPlatform.Domain.Entities.Submission", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("ChallengeId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DateSubmitted")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<byte>("TipsNumber")
-                        .HasColumnType("smallint");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChallengeId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Submissions");
+                    b.ToTable("CurrentChallenges");
                 });
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.Tip", b =>
@@ -94,7 +59,7 @@ namespace CodingPlatform.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("ChallengeId")
+                    b.Property<long?>("CurrentChallengeId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("DateCreated")
@@ -108,7 +73,7 @@ namespace CodingPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ChallengeId");
+                    b.HasIndex("CurrentChallengeId");
 
                     b.ToTable("Tips");
                 });
@@ -124,6 +89,9 @@ namespace CodingPlatform.Infrastructure.Migrations
                     b.Property<long?>("AdminId")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("CurrentChallengeId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp with time zone");
 
@@ -136,6 +104,8 @@ namespace CodingPlatform.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AdminId");
+
+                    b.HasIndex("CurrentChallengeId");
 
                     b.ToTable("Tournaments");
                 });
@@ -198,39 +168,11 @@ namespace CodingPlatform.Infrastructure.Migrations
                     b.ToTable("UserTournamentParticipations");
                 });
 
-            modelBuilder.Entity("CodingPlatform.Domain.Entities.Challenge", b =>
-                {
-                    b.HasOne("CodingPlatform.Domain.Entities.Tournament", "Tournament")
-                        .WithMany("Challenges")
-                        .HasForeignKey("TournamentId");
-
-                    b.Navigation("Tournament");
-                });
-
-            modelBuilder.Entity("CodingPlatform.Domain.Entities.Submission", b =>
-                {
-                    b.HasOne("CodingPlatform.Domain.Entities.Challenge", "Challenge")
-                        .WithMany("Submissions")
-                        .HasForeignKey("ChallengeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CodingPlatform.Domain.Entities.User", "User")
-                        .WithMany("Submissions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Challenge");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CodingPlatform.Domain.Entities.Tip", b =>
                 {
-                    b.HasOne("CodingPlatform.Domain.Entities.Challenge", null)
+                    b.HasOne("CodingPlatform.Domain.Entities.CurrentChallenge", null)
                         .WithMany("Tips")
-                        .HasForeignKey("ChallengeId");
+                        .HasForeignKey("CurrentChallengeId");
                 });
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.Tournament", b =>
@@ -239,7 +181,13 @@ namespace CodingPlatform.Infrastructure.Migrations
                         .WithMany("TournamentsAdmin")
                         .HasForeignKey("AdminId");
 
+                    b.HasOne("CodingPlatform.Domain.Entities.CurrentChallenge", "CurrentChallenge")
+                        .WithMany()
+                        .HasForeignKey("CurrentChallengeId");
+
                     b.Navigation("Admin");
+
+                    b.Navigation("CurrentChallenge");
                 });
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.UserTournamentParticipations", b =>
@@ -257,24 +205,18 @@ namespace CodingPlatform.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CodingPlatform.Domain.Entities.Challenge", b =>
+            modelBuilder.Entity("CodingPlatform.Domain.Entities.CurrentChallenge", b =>
                 {
-                    b.Navigation("Submissions");
-
                     b.Navigation("Tips");
                 });
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.Tournament", b =>
                 {
-                    b.Navigation("Challenges");
-
                     b.Navigation("UserTournamentParticipations");
                 });
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Submissions");
-
                     b.Navigation("TournamentsAdmin");
 
                     b.Navigation("UserTournamentParticipations");

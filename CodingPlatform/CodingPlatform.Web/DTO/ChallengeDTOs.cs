@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CodingPlatform.Web.DTO;
 
-public class CurrentChallengeDto
+public class ChallengeDto
 {
     public long Id { get; set; }
     public string Title { get; set; }
@@ -14,19 +14,13 @@ public class CurrentChallengeDto
 
 public class CreateChallengeDto
 {
-    [Required]
-    [Range(0, long.MaxValue)]
-    public long TournamentId { get; set; }
+    [Required] [Range(0, long.MaxValue)] public long TournamentId { get; set; }
 
-    [Required]
-    public string Title { get; set; }
+    [Required] public string Title { get; set; }
 
-    [Required]
-    public string Description { get; set; }
+    [Required] public string Description { get; set; }
 
-    [Required]
-    [Range(1,3)]
-    public int Hours { get; set; }
+    [Required] [Range(1, 3)] public int Hours { get; set; }
 
     public IEnumerable<string> Tips { get; set; }
 }

@@ -3,6 +3,7 @@ using System;
 using CodingPlatform.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CodingPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220908135402_ChangeForeignKeyChallenge")]
+    partial class ChangeForeignKeyChallenge
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,12 +46,13 @@ namespace CodingPlatform.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long?>("TournamentId")
+                    b.Property<long>("TournamentId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TournamentId");
+                    b.HasIndex("TournamentId")
+                        .IsUnique();
 
                     b.ToTable("Challenges");
                 });
@@ -201,8 +204,10 @@ namespace CodingPlatform.Infrastructure.Migrations
             modelBuilder.Entity("CodingPlatform.Domain.Entities.Challenge", b =>
                 {
                     b.HasOne("CodingPlatform.Domain.Entities.Tournament", "Tournament")
-                        .WithMany("Challenges")
-                        .HasForeignKey("TournamentId");
+                        .WithOne("Challenge")
+                        .HasForeignKey("CodingPlatform.Domain.Entities.Challenge", "TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Tournament");
                 });
@@ -266,7 +271,7 @@ namespace CodingPlatform.Infrastructure.Migrations
 
             modelBuilder.Entity("CodingPlatform.Domain.Entities.Tournament", b =>
                 {
-                    b.Navigation("Challenges");
+                    b.Navigation("Challenge");
 
                     b.Navigation("UserTournamentParticipations");
                 });

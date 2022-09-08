@@ -1,7 +1,5 @@
 using CodingPlatform.AppCore.Filters;
-using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
-using CodingPlatform.Domain.Entities;
 using CodingPlatform.Web.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +19,7 @@ public class TournamentController : CustomControllerBase
         _tournamentService = tournamentService;
     }
 
-    [HttpGet("tournament")]
+    [HttpGet("tournaments")]
     public async Task<IActionResult> GetTournaments([FromQuery] SearchTournamentDto param)
     {
         var tournamentInfos = await _tournamentService.GetTournamentsInfo(

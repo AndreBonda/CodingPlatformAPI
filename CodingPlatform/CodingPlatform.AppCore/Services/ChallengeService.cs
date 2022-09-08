@@ -7,52 +7,57 @@ namespace CodingPlatform.AppCore.Services;
 
 public class ChallengeService : IChallengeService
 {
-    private readonly ICurrentChallengeRepository _currentChallengeRepository;
     private readonly ITournamentRepository _tournamentRepository;
+    private readonly IChallengeRepository _challengeRepository;
 
-    public ChallengeService(ICurrentChallengeRepository currentChallengeRepository, ITournamentRepository tournamentRepository)
+    public ChallengeService(ITournamentRepository tournamentRepository, IChallengeRepository challengeRepository)
     {
-        _currentChallengeRepository = currentChallengeRepository;
         _tournamentRepository = tournamentRepository;
+        _challengeRepository = challengeRepository;
     }
 
-    public async Task<CurrentChallenge> CreateChallenge(long tournamentId, string title, string description,
+    public async Task<Challenge> CreateChallenge(long tournamentId, string title, string description,
         int hours, long userId, IEnumerable<string> tips = null)
     {
         var now = DateTime.UtcNow;
         var tournament = await _tournamentRepository.GetById(tournamentId);
         
         if (tournament == null) throw new NotFoundException("Tournament does not exist");
-
+        
         var adminUser = await _tournamentRepository.GetTournamentAdmin(tournamentId);
         if (userId != adminUser.Id)
             throw new ForbiddenException("You can't create a challenge for this tournament");
-
-        var currentChallenge = await _tournamentRepository.GetCurrentChallenge(tournamentId);
-
-        if (currentChallenge != null && currentChallenge.EndDate > now)
-            throw new BadRequestException("There is a challenge in progress");
-
-        currentChallenge = new CurrentChallenge()
+        
+        if (await _tournamentRepository.GetActiveChallenge(tournamentId, now) != null) 
+            throw new BadRequestException($@"There is a challenge in progress");
+        
+        var newChallenge = new Challenge()
         {
             Title = title,
             Description = description,
             EndDate = DateTime.UtcNow.AddHours(hours),
-            DateCreated = now
+            DateCreated = now,
         };
+        
+        if(tips != null)
+            for(byte i = 0; i < tips.Count(); i++)
+                newChallenge.Tips.Add(new Tip()
+                {
+                    Description = tips.ElementAt(i),
+                    Order = (byte)(i+1),
+                    DateCreated = now
+                });
+        
+        //newChallenge = await _challengeRepository.InsertAsync(newChallenge);
+        tournament.Challenges.Add(newChallenge);
+        await _tournamentRepository.UpdateAsync(tournament);
 
-        foreach (var tip in tips)
-        {
-            currentChallenge.Tips.Add(new Tip()
-            {
-                Description = tip,
-                DateCreated = now
-            });
-        }
+        return newChallenge;
+    }
 
-        tournament.CurrentChallenge = currentChallenge;
-        tournament = await _tournamentRepository.UpdateAsync(tournament);
-
-        return tournament.CurrentChallenge;
+    public async Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId)
+    {
+        await _challengeRepository.GetActiveChallengesByUser(userId);
+        throw new NotImplementedException();
     }
 }

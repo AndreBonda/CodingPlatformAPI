@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Tournament> Tournaments { get; set; }
     public DbSet<UserTournamentParticipations> UserTournamentParticipations { get; set; }
-    public DbSet<CurrentChallenge> CurrentChallenges { get; set; }
+    public DbSet<Challenge> Challenges { get; set; }
     public DbSet<Tip> Tips { get; set; }
+    public DbSet<Submission> Submissions { get; set; }
 }

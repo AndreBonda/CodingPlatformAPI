@@ -67,12 +67,13 @@ public class TournamentRepository : BaseRepository<Tournament>, ITournamentRepos
             .CountAsync();
     }
 
-    public async Task<CurrentChallenge> GetCurrentChallenge(long tournamentId)
+    public async Task<Challenge> GetActiveChallenge(long tournamentId, DateTime? now = null)
     {
-        var tournament = await dbCtx.Set<Tournament>()
-            .Include(t => t.CurrentChallenge)
-            .FirstOrDefaultAsync(t => t.Id == tournamentId);
+        now ??= DateTime.UtcNow;
         
-        return tournament?.CurrentChallenge;
+        return await dbCtx.Challenges.FirstOrDefaultAsync(c =>
+            c.Tournament.Id == tournamentId &&
+            c.DateCreated <= now && c.EndDate >= now);
+
     }
 }
