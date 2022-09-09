@@ -21,6 +21,20 @@ public class InfoInProgressChallengeDto
     public string TournamentName { get; set; }
 }
 
+public class SubmissionStatusDto
+{
+    public DateTime Started { get; set; }
+    public DateTime EndDate { get; set; }
+    public DateTime? Submitted { get; set; }
+    public string Content { get; set; }
+    public decimal Score { get; set; }
+    public string[] TipsUsed { get; set; }
+    public int TotalAvailableTips { get; set; }
+    public int TipsUsedNumber { get; set; }
+    public int AvailableTips { get; set; }
+
+}
+
 public class CreateChallengeDto
 {
     [Required] [Range(0, long.MaxValue)] public long TournamentId { get; set; }

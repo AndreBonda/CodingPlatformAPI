@@ -34,4 +34,13 @@ public class ChallengeRepository : BaseRepository<Challenge>, IChallengeReposito
             c.Tournament.Id == tournamentId &&
             c.DateCreated <= now && c.EndDate >= now);
     }
+
+    public async Task<IEnumerable<Tip>> GetChallengeTips(long challengeId)
+    { 
+        return (
+            await dbCtx.Challenges
+                .Include(c => c.Tips)
+                .FirstAsync(c => c.Id == challengeId)
+            ).Tips;
+    }
 }

@@ -1,3 +1,4 @@
+using CodingPlatform.Domain;
 using CodingPlatform.Domain.Entities;
 
 namespace CodingPlatform.AppCore.Interfaces.Services;
@@ -13,6 +14,6 @@ public interface IChallengeService
     /// <param name="userId"></param>
     /// <returns>Returns challenges</returns>
     Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId);
-
     Task<Submission> StartChallenge(long challengeId, long userId);
+    Task<SubmissionStatus> GetSubmissionStatus(long challengeId, long userId);
 }

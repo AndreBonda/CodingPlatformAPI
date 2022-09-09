@@ -16,6 +16,8 @@ public interface IChallengeRepository : IRepository<Challenge>
     /// <param name="tournamentId"></param>
     /// <param name="now"></param>
     Task<Challenge> GetActiveChallengeByTournament(long tournamentId, DateTime? now = null);
-    
-    
+
+    Task<IEnumerable<Tip>> GetChallengeTips(long challengeId);
+
+
 }

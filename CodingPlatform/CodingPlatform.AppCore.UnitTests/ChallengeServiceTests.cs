@@ -129,7 +129,7 @@ public class ChallengeServiceTests
             .Setup(challRepo => challRepo.GetByIdAsync(It.IsAny<long>()))
             .Returns(Task.FromResult<Challenge>(null));
 
-        var exc = Assert.ThrowsAsync<BadRequestException>(
+        var exc = Assert.ThrowsAsync<NotFoundException>(
             () => _challengeService.StartChallenge(1, 1));
         Assert.That(exc.Message, Does.Contain("exist").IgnoreCase);
     }
@@ -235,7 +235,8 @@ public class ChallengeServiceTests
 
         _submissionRepository
             .Verify(subRepo => subRepo.InsertAsync(
-                It.Is<Submission>(s => s.TipsNumber == 0 && s.DateSubmitted == null && s.Content == string.Empty)));
+                It.Is<Submission>(s => 
+                    s.TipsNumber == 0 && s.DateSubmitted == null && s.Content == string.Empty && s.Score == 0)));
         
     }
 }

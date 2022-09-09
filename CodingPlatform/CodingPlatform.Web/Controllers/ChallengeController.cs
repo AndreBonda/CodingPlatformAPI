@@ -1,4 +1,5 @@
 using CodingPlatform.AppCore.Interfaces.Services;
+using CodingPlatform.Domain.Entities;
 using CodingPlatform.Web.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -59,4 +60,23 @@ public class ChallengeController : CustomControllerBase
             Started = submission.DateCreated
         });
     }
+
+    [HttpGet("submission_status/{challengeId}")]
+    public async Task<IActionResult> GetSubmissionStatus(long challengeId)
+    {
+        var subStatus = await _challengeService.GetSubmissionStatus(challengeId, GetCurrentUserId());
+        return Ok(new SubmissionStatusDto
+        {
+            Started = subStatus.StartDate,
+            EndDate = subStatus.EndDate,
+            Submitted = subStatus.SubmitDate,
+            Content = subStatus.Content,
+            Score = subStatus.Score,
+            TotalAvailableTips = subStatus.TotalAvailableTips,
+            TipsUsed = subStatus.TipsUsed,
+            TipsUsedNumber = subStatus.TipsUsedNumber(),
+            AvailableTips = subStatus.AvailableTips()
+        });
+    }
+
 }

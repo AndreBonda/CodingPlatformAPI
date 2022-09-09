@@ -8,6 +8,8 @@ public class Submission : BaseEntity
     public DateTime? DateSubmitted { get; set; }
     public string Content { get; set; }
 
+    public decimal Score { get; set; }
+    
     [Required]
     public Challenge Challenge { get; set; }
     [Required]

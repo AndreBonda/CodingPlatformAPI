@@ -12,7 +12,7 @@ public class SubmissionRepository : BaseRepository<Submission>, ISubmissionRepos
 
     public async Task<Submission> GetSubmissionByUserAndChallengeAsync(long userId, long challengeId)
     {
-        return await dbCtx.Submissions.SingleOrDefaultAsync(
+        return await dbCtx.Submissions.FirstOrDefaultAsync(
             s => s.User.Id == userId && s.Challenge.Id == challengeId);
     }
 }

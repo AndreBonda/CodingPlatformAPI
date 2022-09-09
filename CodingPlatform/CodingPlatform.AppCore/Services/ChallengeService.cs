@@ -1,5 +1,6 @@
 using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
+using CodingPlatform.Domain;
 using CodingPlatform.Domain.Entities;
 using CodingPlatform.Domain.Exception;
 using CodingPlatform.Domain.Extensions;
@@ -68,7 +69,7 @@ public class ChallengeService : IChallengeService
     public async Task<Submission> StartChallenge(long challengeId, long userId)
     {
         var challenge = await _challengeRepository.GetByIdAsync(challengeId);
-        if (challenge == null) throw new BadRequestException("Challenge does not exist");
+        if (challenge == null) throw new NotFoundException("Challenge does not exist");
 
         var tournament = await _tournamentRepository.GetTournamentByChallengeAsync(challengeId);
         if (!await _tournamentRepository.IsUserSubscribedAsync(tournament.Id, userId))
@@ -88,9 +89,36 @@ public class ChallengeService : IChallengeService
             User = user,
             Content = string.Empty,
             TipsNumber = 0,
+            Score = 0
         };
         submission = await _submissionRepository.InsertAsync(submission);
 
         return submission;
+    }
+
+    public async Task<SubmissionStatus> GetSubmissionStatus(long challengeId, long userId)
+    {
+        var challenge = await _challengeRepository.GetByIdAsync(challengeId);
+        if (challenge == null) throw new NotFoundException("Challenge does not exist");
+
+        var submission = await _submissionRepository.GetSubmissionByUserAndChallengeAsync(userId, challengeId);
+        if (submission == null) throw new NotFoundException("Submission does not exist");
+
+        var tips = await _challengeRepository.GetChallengeTips(challengeId);
+
+        var tipsUsedValue = tips.Where(t => t.Order <= submission.TipsNumber)
+            .Select(t => t.Description)
+            .ToArray();
+
+        var submissionStatus =
+            new SubmissionStatus(submission.DateCreated, challenge.EndDate, submission.DateSubmitted)
+            {
+                Content = submission.Content,
+                Score = submission.Score,
+                TotalAvailableTips = tips.Count(),
+                TipsUsed = tipsUsedValue
+            };
+
+        return submissionStatus;
     }
 }
