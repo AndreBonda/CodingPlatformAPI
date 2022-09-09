@@ -28,7 +28,7 @@ public class ChallengeService : IChallengeService
         if (userId != adminUser.Id)
             throw new ForbiddenException("You can't create a challenge for this tournament");
         
-        if (await _tournamentRepository.GetActiveChallenge(tournamentId, now) != null) 
+        if (await _challengeRepository.GetActiveChallengeByTournament(tournamentId, now) != null) 
             throw new BadRequestException($@"There is a challenge in progress");
         
         var newChallenge = new Challenge()
@@ -57,7 +57,6 @@ public class ChallengeService : IChallengeService
 
     public async Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId)
     {
-        await _challengeRepository.GetActiveChallengesByUser(userId);
-        throw new NotImplementedException();
+        return await _challengeRepository.GetActiveChallengesByUser(userId);
     }
 }

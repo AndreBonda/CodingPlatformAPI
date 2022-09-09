@@ -67,13 +67,5 @@ public class TournamentRepository : BaseRepository<Tournament>, ITournamentRepos
             .CountAsync();
     }
 
-    public async Task<Challenge> GetActiveChallenge(long tournamentId, DateTime? now = null)
-    {
-        now ??= DateTime.UtcNow;
-        
-        return await dbCtx.Challenges.FirstOrDefaultAsync(c =>
-            c.Tournament.Id == tournamentId &&
-            c.DateCreated <= now && c.EndDate >= now);
 
-    }
 }

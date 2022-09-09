@@ -12,6 +12,15 @@ public class ChallengeDto
     public IEnumerable<string> Tips { get; set; }
 }
 
+public class InfoInProgressChallengeDto
+{
+    public long ChallengeId { get; set; }
+    public string ChallengeName { get; set; }
+    public DateTime DateStart { get; set; }
+    public DateTime DateEnd { get; set; }
+    public string TournamentName { get; set; }
+}
+
 public class CreateChallengeDto
 {
     [Required] [Range(0, long.MaxValue)] public long TournamentId { get; set; }

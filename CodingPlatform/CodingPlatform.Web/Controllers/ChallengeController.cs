@@ -18,11 +18,19 @@ public class ChallengeController : CustomControllerBase
         _challengeService = challengeService;
     }
     
-    [HttpGet("user_active_challenges")]
-    public async Task<IActionResult> GetChallenges()
+    [HttpGet("user_in_progress_challenges")]
+    public async Task<IActionResult> UserInProgressChallenges()
     {
-        await _challengeService.GetActiveChallengesByUser(GetCurrentUserId());
-        return Ok();
+        var userInProgressChallenges = await _challengeService.GetActiveChallengesByUser(GetCurrentUserId());
+        
+        return Ok(userInProgressChallenges.Select(c => new InfoInProgressChallengeDto
+        {
+            ChallengeId = c.Id,
+            ChallengeName = c.Title,
+            DateStart = c.DateCreated,
+            DateEnd = c.EndDate,
+            TournamentName = c.Tournament.Name
+        }));
     }
 
     [HttpPost("challenge")]

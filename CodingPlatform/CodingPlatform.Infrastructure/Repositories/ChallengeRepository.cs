@@ -12,15 +12,26 @@ public class ChallengeRepository : BaseRepository<Challenge>, IChallengeReposito
 
     public async Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId)
     {
-        var query = dbCtx.Set<UserTournamentParticipations>()
-            .Include(up => up.User)
-            .Include(up => up.Tournament)
-            .ThenInclude(t => t.Challenges)
+        var now = DateTime.UtcNow;
+        
+        var tournamentIds = await dbCtx.UserTournamentParticipations
             .Where(up => up.User.Id == userId)
-            .Select(up => up.Tournament);
+            .Select(up => up.Tournament.Id)
+            .ToListAsync();
+
+        return await dbCtx.Challenges
+            .Include(c => c.Tournament)
+            .Where(c => c.DateCreated <= now && c.EndDate >= now &&
+                        tournamentIds.Contains(c.Tournament.Id))
+            .ToListAsync();
+    }
+    
+    public async Task<Challenge> GetActiveChallengeByTournament(long tournamentId, DateTime? now = null)
+    {
+        now ??= DateTime.UtcNow;
         
-        var tournament = await query.ToListAsync();
-        
-        throw new NotImplementedException();
+        return await dbCtx.Challenges.FirstOrDefaultAsync(c =>
+            c.Tournament.Id == tournamentId &&
+            c.DateCreated <= now && c.EndDate >= now);
     }
 }
