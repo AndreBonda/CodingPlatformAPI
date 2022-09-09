@@ -14,5 +14,5 @@ public interface IChallengeService
     /// <returns>Returns challenges</returns>
     Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId);
 
-    Task<DateTime> StartChallenge(long challengeId, long userId);
+    Task<Submission> StartChallenge(long challengeId, long userId);
 }

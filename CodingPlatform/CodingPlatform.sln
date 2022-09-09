@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodingPlatform.Web.UnitTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodingPlatform.AppCore.UnitTests", "CodingPlatform.AppCore.UnitTests\CodingPlatform.AppCore.UnitTests.csproj", "{3E4457E9-079B-4060-978A-FC22E9D44733}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodingPlatform.Domain.UnitTests", "CodingPlatform.Domain.UnitTests\CodingPlatform.Domain.UnitTests.csproj", "{AC52135B-817C-4B17-901D-C487578F6613}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,9 +46,14 @@ Global
 		{3E4457E9-079B-4060-978A-FC22E9D44733}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E4457E9-079B-4060-978A-FC22E9D44733}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E4457E9-079B-4060-978A-FC22E9D44733}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC52135B-817C-4B17-901D-C487578F6613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC52135B-817C-4B17-901D-C487578F6613}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC52135B-817C-4B17-901D-C487578F6613}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC52135B-817C-4B17-901D-C487578F6613}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{12462543-7242-472E-87C0-CC4C66086811} = {C6D32C90-FE40-43BE-9464-5DD676EF17EA}
 		{3E4457E9-079B-4060-978A-FC22E9D44733} = {C6D32C90-FE40-43BE-9464-5DD676EF17EA}
+		{AC52135B-817C-4B17-901D-C487578F6613} = {C6D32C90-FE40-43BE-9464-5DD676EF17EA}
 	EndGlobalSection
 EndGlobal

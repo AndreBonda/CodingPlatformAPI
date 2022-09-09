@@ -65,7 +65,7 @@ public class ChallengeService : IChallengeService
         return await _challengeRepository.GetActiveChallengesByUser(userId);
     }
 
-    public async Task<DateTime> StartChallenge(long challengeId, long userId)
+    public async Task<Submission> StartChallenge(long challengeId, long userId)
     {
         var challenge = await _challengeRepository.GetByIdAsync(challengeId);
         if (challenge == null) throw new BadRequestException("Challenge does not exist");
@@ -91,6 +91,6 @@ public class ChallengeService : IChallengeService
         };
         submission = await _submissionRepository.InsertAsync(submission);
 
-        return submission.DateCreated;
+        return submission;
     }
 }

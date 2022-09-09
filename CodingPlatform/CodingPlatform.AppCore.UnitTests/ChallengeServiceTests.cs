@@ -3,6 +3,7 @@ using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.AppCore.Services;
 using CodingPlatform.Domain.Entities;
 using CodingPlatform.Domain.Exception;
+using CodingPlatform.Domain.Extensions;
 using Moq;
 using NUnit.Framework;
 
@@ -116,7 +117,125 @@ public class ChallengeServiceTests
         Assert.That(challenge.Tips, Is.Not.Null);
         Assert.That(challenge.Tips.Count, Is.EqualTo(2));
         Assert.That(challenge.Tips.ElementAt(0).Order, Is.EqualTo(1));
+        Assert.That(challenge.Tips.ElementAt(1).Order, Is.EqualTo(2));
+        Assert.That(challenge.Tips.ElementAt(0).Description, Is.EqualTo("tip1"));
+        Assert.That(challenge.Tips.ElementAt(1).Description, Is.EqualTo("tip2"));
+    }
+
+    [Test]
+    public void StartChallenge_ChallengeDoesNotExist_ThrowBadRequestException()
+    {
+        _challengeRepository
+            .Setup(challRepo => challRepo.GetByIdAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult<Challenge>(null));
+
+        var exc = Assert.ThrowsAsync<BadRequestException>(
+            () => _challengeService.StartChallenge(1, 1));
+        Assert.That(exc.Message, Does.Contain("exist").IgnoreCase);
+    }
+
+    [Test]
+    public void StartChallenge_UserIsNotSubscribedToTheTournament_ThrowBadRequestException()
+    {
+        _challengeRepository
+            .Setup(challRepo => challRepo.GetByIdAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(new Challenge()));
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.GetTournamentByChallengeAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(new Tournament()));
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
+            .Returns(Task.FromResult(false));
+        
+        var exc = Assert.ThrowsAsync<BadRequestException>(
+            () => _challengeService.StartChallenge(1, 1));
+        Assert.That(exc.Message, Does.Contain("subscribed").IgnoreCase);
     }
     
+    [Test]
+    public void StartChallenge_ChallengeIsNotInProgress_ThrowBadRequestException()
+    {
+        var challenge = new Challenge()
+        {
+            DateCreated = DateTime.UtcNow.AddDays(-1),
+            EndDate = DateTime.UtcNow.AddDays(-1)
+        };
+        _challengeRepository
+            .Setup(challRepo => challRepo.GetByIdAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(challenge));
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.GetTournamentByChallengeAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(new Tournament()));
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
+            .Returns(Task.FromResult(true));
+        
+        var exc = Assert.ThrowsAsync<BadRequestException>(
+            () => _challengeService.StartChallenge(1, 1));
+        Assert.That(exc.Message, Does.Contain("progress").IgnoreCase);
+    }
     
+    [Test]
+    public void StartChallenge_UserHasAlreadyStarted_ThrowBadRequestException()
+    {
+        var challenge = new Challenge()
+        {
+            DateCreated = DateTime.UtcNow.AddDays(-1),
+            EndDate = DateTime.UtcNow.AddDays(1)
+        };
+        _challengeRepository
+            .Setup(challRepo => challRepo.GetByIdAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(challenge));
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.GetTournamentByChallengeAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(new Tournament()));
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
+            .Returns(Task.FromResult(true));
+        _submissionRepository
+            .Setup(subRepo =>
+                subRepo.GetSubmissionByUserAndChallengeAsync(It.IsAny<long>(), It.IsAny<long>()))
+            .Returns(Task.FromResult(new Submission()));
+        
+        
+        var exc = Assert.ThrowsAsync<BadRequestException>(
+            () => _challengeService.StartChallenge(1, 1));
+        Assert.That(exc.Message, Does.Contain("started").IgnoreCase);
+    }
+    
+    [Test]
+    public async Task StartChallenge_WhenCalledCorrectly_StoreSubmission()
+    {
+        var challenge = new Challenge()
+        {
+            DateCreated = DateTime.UtcNow.AddDays(-1),
+            EndDate = DateTime.UtcNow.AddDays(1)
+        };
+        _challengeRepository
+            .Setup(challRepo => challRepo.GetByIdAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(challenge));
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.GetTournamentByChallengeAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(new Tournament()));
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
+            .Returns(Task.FromResult(true));
+        _submissionRepository
+            .Setup(subRepo =>
+                subRepo.GetSubmissionByUserAndChallengeAsync(It.IsAny<long>(), It.IsAny<long>()))
+            .Returns(Task.FromResult<Submission>(null));
+        _userRepository
+            .Setup(userRepo => userRepo.GetByIdAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult(new User()));
+        _submissionRepository
+            .Setup(subRepo => subRepo.InsertAsync(It.IsAny<Submission>()))
+            .Returns(Task.FromResult(new Submission()));
+
+        await _challengeService.StartChallenge(1, 1);
+
+        _submissionRepository
+            .Verify(subRepo => subRepo.InsertAsync(
+                It.Is<Submission>(s => s.TipsNumber == 0 && s.DateSubmitted == null && s.Content == string.Empty)));
+        
+    }
 }

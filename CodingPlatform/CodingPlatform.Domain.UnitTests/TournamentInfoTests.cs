@@ -1,8 +1,6 @@
-using CodingPlatform.Domain;
-using Moq;
 using NUnit.Framework;
 
-namespace CodingPlatform.AppCore.UnitTests;
+namespace CodingPlatform.Domain.UnitTests;
 
 [TestFixture]
 public class TournamentInfoTests

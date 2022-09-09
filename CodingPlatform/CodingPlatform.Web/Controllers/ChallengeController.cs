@@ -53,10 +53,10 @@ public class ChallengeController : CustomControllerBase
     [HttpPost("challenge_start/{challengeId}")]
     public async Task<IActionResult> StartChallenge(long challengeId)
     {
-        var startDate = await _challengeService.StartChallenge(challengeId, GetCurrentUserId());
+        var submission = await _challengeService.StartChallenge(challengeId, GetCurrentUserId());
         return Created(nameof(StartChallenge), new
         {
-            Started = startDate
+            Started = submission.DateCreated
         });
     }
 }
