@@ -32,7 +32,7 @@ public class ChallengeService : IChallengeService
         
         var adminUser = await _tournamentRepository.GetTournamentAdminAsync(tournamentId);
         if (userId != adminUser.Id)
-            throw new ForbiddenException("You can't create a challenge for this tournament");
+            throw new ForbiddenException("User can not create a challenge for this tournament");
         
         if (await _challengeRepository.GetActiveChallengeByTournament(tournamentId, now) != null) 
             throw new BadRequestException($@"There is a challenge in progress");
