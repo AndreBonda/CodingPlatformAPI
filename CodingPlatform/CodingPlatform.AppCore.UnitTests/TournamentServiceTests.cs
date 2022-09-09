@@ -27,7 +27,7 @@ public class TournamentServiceTests
     public void Create_NameAlreadyExist_ThrowBadRequestException()
     {
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetTournamentByName(It.IsAny<string>()))
+            .Setup(tourRepo => tourRepo.GetTournamentByNameAsync(It.IsAny<string>()))
             .Returns(Task.FromResult(new Tournament()));
 
         var exc = Assert.ThrowsAsync<BadRequestException>(() =>
@@ -39,10 +39,10 @@ public class TournamentServiceTests
     public async Task Create_WhenCalledCorrectly_StoreTheTournament()
     {
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetTournamentByName(It.IsAny<string>()))
+            .Setup(tourRepo => tourRepo.GetTournamentByNameAsync(It.IsAny<string>()))
             .Returns(Task.FromResult<Tournament>(null));
         _userRepository
-            .Setup(userRepo => userRepo.GetById(It.IsAny<long>()))
+            .Setup(userRepo => userRepo.GetByIdAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()));
 
         await _tournamentService.Create(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<long>());
@@ -59,7 +59,7 @@ public class TournamentServiceTests
     public void SubscribeUser_TournamentDoesNotExist_ThrowNotFoundException()
     {
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetById(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
             .Returns(Task.FromResult<Tournament>(null));
 
         var exc = Assert.ThrowsAsync<NotFoundException>(
@@ -71,10 +71,10 @@ public class TournamentServiceTests
     public void SubscribeUser_UserAlreadySubscribed_ThrowBadRequestException()
     {
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetById(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new Tournament()));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.IsUserSubscribed(It.IsAny<long>(), It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(true));
         
         var exc = Assert.ThrowsAsync<BadRequestException>(
@@ -86,13 +86,13 @@ public class TournamentServiceTests
     public void SubscribeUser_UserIsAdminOfTheTournament_ThrowBadRequestException()
     {
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetById(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new Tournament()));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.IsUserSubscribed(It.IsAny<long>(), It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(false));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetTournamentAdmin(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetTournamentAdminAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()
             {
                 Id = 1
@@ -107,22 +107,22 @@ public class TournamentServiceTests
     public void SubscribeUser_TournamentIsFull_ThrowBadRequestException()
     {
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetById(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new Tournament()
             {
                 MaxParticipants = 2
             }));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.IsUserSubscribed(It.IsAny<long>(), It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(false));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetTournamentAdmin(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetTournamentAdminAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()
             {
                 Id = 1
             }));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetSubscriberNumber(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetSubscriberNumberAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(2));
         
         var exc = Assert.ThrowsAsync<BadRequestException>(
@@ -134,27 +134,27 @@ public class TournamentServiceTests
     public async Task SubscribeUser_WhenCalledCorrectly_StoreSubscription()
     {
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetById(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new Tournament()
             {
                 MaxParticipants = 4
             }));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.IsUserSubscribed(It.IsAny<long>(), It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(false));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetTournamentAdmin(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetTournamentAdminAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()
             {
                 Id = 2
             }));
         _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetSubscriberNumber(It.IsAny<long>()))
+            .Setup(tourRepo => tourRepo.GetSubscriberNumberAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(3));
 
         await _tournamentService.SubscribeUser(1, 3);
 
         _tournamentRepository
-            .Verify(tourRepo => tourRepo.AddSubscription(It.IsAny<Tournament>(), It.IsAny<User>()));
+            .Verify(tourRepo => tourRepo.AddSubscriptionAsync(It.IsAny<Tournament>(), It.IsAny<User>()));
     }
 }

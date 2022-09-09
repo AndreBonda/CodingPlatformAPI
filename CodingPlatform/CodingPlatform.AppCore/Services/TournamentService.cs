@@ -20,10 +20,10 @@ public class TournamentService : ITournamentService
 
     public async Task<Tournament> Create(string tournamentName, int maxParticipants, long userId)
     {
-        if (await _tournamentRepository.GetTournamentByName(tournamentName) != null)
+        if (await _tournamentRepository.GetTournamentByNameAsync(tournamentName) != null)
             throw new BadRequestException("Tournament name exists.");
         
-        var currentUser = await _userRepository.GetById(userId);
+        var currentUser = await _userRepository.GetByIdAsync(userId);
         
         return await _tournamentRepository.InsertAsync(new Tournament()
         {
@@ -36,12 +36,12 @@ public class TournamentService : ITournamentService
     public async Task<IEnumerable<TournamentInfo>> GetTournamentsInfo(TournamentFilters filters)
     {
         List<TournamentInfo> tournamentInfos = new List<TournamentInfo>();
-        var tournaments = await _tournamentRepository.GetFiltered(filters);
+        var tournaments = await _tournamentRepository.GetFilteredAsync(filters);
 
         foreach (var tour in tournaments)
         {
-            var adminUserName = (await _tournamentRepository.GetTournamentAdmin(tour.Id)).UserName;
-            var subscriberNumber = await _tournamentRepository.GetSubscriberNumber(tour.Id);
+            var adminUserName = (await _tournamentRepository.GetTournamentAdminAsync(tour.Id)).UserName;
+            var subscriberNumber = await _tournamentRepository.GetSubscriberNumberAsync(tour.Id);
             var info = new TournamentInfo(tour.Id, tour.Name, tour.MaxParticipants, adminUserName, subscriberNumber,
                 tour.DateCreated);
             tournamentInfos.Add(info);
@@ -52,21 +52,21 @@ public class TournamentService : ITournamentService
 
     public async Task<UserTournamentParticipations> SubscribeUser(long tournamentId, long userId)
     {
-        var tournament = await _tournamentRepository.GetById(tournamentId);
+        var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
         if (tournament == null) 
             throw new NotFoundException("Tournament does not exist");
         
-        if (await _tournamentRepository.IsUserSubscribed(tournamentId, userId))
+        if (await _tournamentRepository.IsUserSubscribedAsync(tournamentId, userId))
             throw new BadRequestException("User already subscribed");
         
-        var admin = await _tournamentRepository.GetTournamentAdmin(tournamentId);
+        var admin = await _tournamentRepository.GetTournamentAdminAsync(tournamentId);
         if (admin.Id == userId) 
             throw new BadRequestException("An admin can't subscribe to his tournament");
 
-        if (await _tournamentRepository.GetSubscriberNumber(tournamentId) == tournament.MaxParticipants)
+        if (await _tournamentRepository.GetSubscriberNumberAsync(tournamentId) == tournament.MaxParticipants)
             throw new BadRequestException("The tournament is full");
         
-        var currentUser = await _userRepository.GetById(userId);
-        return await _tournamentRepository.AddSubscription(tournament, currentUser);
+        var currentUser = await _userRepository.GetByIdAsync(userId);
+        return await _tournamentRepository.AddSubscriptionAsync(tournament, currentUser);
     }
 }

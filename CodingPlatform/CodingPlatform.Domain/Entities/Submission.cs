@@ -6,6 +6,7 @@ public class Submission : BaseEntity
 {
     public byte TipsNumber { get; set; }
     public DateTime? DateSubmitted { get; set; }
+    public string Content { get; set; }
 
     [Required]
     public Challenge Challenge { get; set; }

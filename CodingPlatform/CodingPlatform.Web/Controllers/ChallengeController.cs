@@ -18,7 +18,7 @@ public class ChallengeController : CustomControllerBase
         _challengeService = challengeService;
     }
     
-    [HttpGet("user_in_progress_challenges")]
+    [HttpGet("challenges_in_progress")]
     public async Task<IActionResult> UserInProgressChallenges()
     {
         var userInProgressChallenges = await _challengeService.GetActiveChallengesByUser(GetCurrentUserId());
@@ -50,10 +50,13 @@ public class ChallengeController : CustomControllerBase
         });
     }
 
-    [HttpPost("challenge_start")]
-    public async Task<IActionResult> SubmitChallenge()
+    [HttpPost("challenge_start/{challengeId}")]
+    public async Task<IActionResult> StartChallenge(long challengeId)
     {
-        
-        throw new NotImplementedException();
+        var startDate = await _challengeService.StartChallenge(challengeId, GetCurrentUserId());
+        return Created(nameof(StartChallenge), new
+        {
+            Started = startDate
+        });
     }
 }

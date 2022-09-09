@@ -13,4 +13,6 @@ public interface IChallengeService
     /// <param name="userId"></param>
     /// <returns>Returns challenges</returns>
     Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId);
+
+    Task<DateTime> StartChallenge(long challengeId, long userId);
 }

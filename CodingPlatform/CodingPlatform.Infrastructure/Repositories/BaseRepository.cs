@@ -24,7 +24,7 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
         return await results.ToListAsync();
     }
 
-    public async Task<TEntity> GetById(long id)
+    public async Task<TEntity> GetByIdAsync(long id)
     {
         return await dbCtx.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
     }
@@ -39,7 +39,7 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
 
     public async Task<TEntity> DeleteAsync(long id)
     {
-        var entity = await GetById(id);
+        var entity = await GetByIdAsync(id);
         dbCtx.Set<TEntity>().Remove(entity);
         await dbCtx.SaveChangesAsync();
         return entity;
@@ -47,7 +47,7 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
 
     public async Task<TEntity> UpdateAsync(TEntity entity)
     {
-        var dbEntity = await GetById(entity.Id);
+        var dbEntity = await GetByIdAsync(entity.Id);
         if (dbEntity == null)
             return null;
         
