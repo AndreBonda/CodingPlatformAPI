@@ -122,4 +122,19 @@ public class ChallengeController : CustomControllerBase
             RemainingTipsNumber = subStatus.RemainingTipsNumber()
         });
     }
+
+    [HttpGet("submissions/{challengeId}")]
+    public async Task<IActionResult> GetSubmissions(long challengeId)
+    {
+        var submissions = 
+            await _challengeService.GetSubmissionsByChallenge(challengeId, GetCurrentUserId());
+        return Ok(submissions.Select(s => new SubmissionDto
+        {
+            SubmissionId = s.Id,
+            Content = s.Content,
+            Score = s.Score,
+            Started = s.DateCreated,
+            Submitted = s.DateSubmitted
+        }));
+    }
 }

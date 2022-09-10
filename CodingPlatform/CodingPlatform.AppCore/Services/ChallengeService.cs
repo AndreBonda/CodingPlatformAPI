@@ -31,7 +31,7 @@ public class ChallengeService : IChallengeService
 
         if (tournament == null) throw new NotFoundException("Tournament does not exist");
 
-        var adminUser = await _tournamentRepository.GetTournamentAdminAsync(tournamentId);
+        var adminUser = await _userRepository.GetTournamentAdminAsync(tournamentId);
         if (userId != adminUser.Id)
             throw new ForbiddenException("User is not authorized to create a challenge for this tournament");
 
@@ -102,7 +102,7 @@ public class ChallengeService : IChallengeService
         var submission = await _submissionRepository.GetByIdAsync(submissionId);
         if (submission == null) throw new NotFoundException("Submission does not exist");
 
-        var user = await _submissionRepository.GetUserBySubmission(submissionId);
+        var user = await _userRepository.GetUserBySubmission(submissionId);
         if (userId != user.Id) throw new ForbiddenException("User is not authorized to this submission");
 
         var challenge = await _submissionRepository.GetChallengeBySubmission(submissionId);
@@ -116,6 +116,12 @@ public class ChallengeService : IChallengeService
     public async Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId)
     {
         var subStatus = await GetSubmissionStatus(submissionId, userId);
+        
+        if (subStatus.IsSubmissionDelivered())
+            throw new BadRequestException("Submission is already delivered");
+
+        if (subStatus.IsChallengeOver())
+            throw new BadRequestException("Challenge is over");
 
         if (!subStatus.IsRemainingTip())
             throw new BadRequestException("No tips available");
@@ -144,5 +150,16 @@ public class ChallengeService : IChallengeService
         submission.Content = subStatus.Content;
         await _submissionRepository.UpdateAsync(submission);
         return subStatus;
+    }
+
+    public async Task<IEnumerable<Submission>> GetSubmissionsByChallenge(long challengeId, long userId)
+    {
+        var challenge = await _challengeRepository.GetByIdAsync(challengeId);
+        if (challenge == null) throw new NotFoundException("Challenge does not exist");
+
+        var admin = await _userRepository.GetAdminByChallenge(challengeId);
+        if (userId != admin.Id) throw new ForbiddenException("User is not to this challenge");
+
+        return await _submissionRepository.GetSubmissionsByChallengeAsync(challengeId);
     }
 }

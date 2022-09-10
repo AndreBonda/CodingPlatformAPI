@@ -22,4 +22,31 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return await dbCtx.Set<User>()
         .FirstOrDefaultAsync(u => u.UserName.ToLower() == username.ToLower());
     }
+
+    public async Task<User> GetUserBySubmission(long submissionId)
+    {
+        return (
+            await dbCtx.Submissions
+                .Include(s => s.User)
+                .SingleAsync(s => s.Id == submissionId)
+        ).User;
+    }
+    
+    public async Task<User> GetAdminByChallenge(long challengeId)
+    {
+        return (
+            await dbCtx.Challenges
+                .Include(c => c.Tournament).ThenInclude(t => t.Admin)
+                .FirstAsync(c => c.Id == challengeId)
+        ).Tournament.Admin;
+    }
+    
+    public async Task<User> GetTournamentAdminAsync(long tournamentId)
+    {
+        var tournament = await dbCtx.Set<Tournament>()
+            .Include(t => t.Admin)
+            .FirstOrDefaultAsync(x => x.Id == tournamentId);
+        
+        return tournament?.Admin;
+    }
 }

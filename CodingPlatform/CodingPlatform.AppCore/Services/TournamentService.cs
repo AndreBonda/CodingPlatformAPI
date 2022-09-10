@@ -40,7 +40,7 @@ public class TournamentService : ITournamentService
 
         foreach (var tour in tournaments)
         {
-            var adminUserName = (await _tournamentRepository.GetTournamentAdminAsync(tour.Id)).UserName;
+            var adminUserName = (await _userRepository.GetTournamentAdminAsync(tour.Id)).UserName;
             var subscriberNumber = await _tournamentRepository.GetSubscriberNumberAsync(tour.Id);
             var info = new TournamentInfo(tour.Id, tour.Name, tour.MaxParticipants, adminUserName, subscriberNumber,
                 tour.DateCreated);
@@ -59,7 +59,7 @@ public class TournamentService : ITournamentService
         if (await _tournamentRepository.IsUserSubscribedAsync(tournamentId, userId))
             throw new BadRequestException("User already subscribed");
         
-        var admin = await _tournamentRepository.GetTournamentAdminAsync(tournamentId);
+        var admin = await _userRepository.GetTournamentAdminAsync(tournamentId);
         if (admin.Id == userId) 
             throw new BadRequestException("An admin can't subscribe to his tournament");
 

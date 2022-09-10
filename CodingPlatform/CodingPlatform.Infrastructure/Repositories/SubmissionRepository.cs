@@ -16,15 +16,6 @@ public class SubmissionRepository : BaseRepository<Submission>, ISubmissionRepos
             s => s.User.Id == userId && s.Challenge.Id == challengeId);
     }
 
-    public async Task<User> GetUserBySubmission(long submissionId)
-    {
-        return (
-            await dbCtx.Submissions
-                .Include(s => s.User)
-                .SingleAsync(s => s.Id == submissionId)
-        ).User;
-    }
-
     public async Task<Challenge> GetChallengeBySubmission(long submissionId)
     {
         return (
@@ -32,5 +23,12 @@ public class SubmissionRepository : BaseRepository<Submission>, ISubmissionRepos
                 .Include(s => s.Challenge).ThenInclude(c => c.Tips)
                 .FirstAsync(s => s.Id == submissionId)
         ).Challenge;
+    }
+
+    public async Task<IEnumerable<Submission>> GetSubmissionsByChallengeAsync(long challengeId)
+    {
+        return await dbCtx.Submissions
+            .Where(s => s.Challenge.Id == challengeId)
+            .ToListAsync();
     }
 }

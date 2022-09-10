@@ -18,4 +18,5 @@ public interface IChallengeService
     Task<SubmissionStatus> GetSubmissionStatus(long submissionId, long userId);
     Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId);
     Task<SubmissionStatus> EndSubmission(long submissionId, string content, long userId);
+    Task<IEnumerable<Submission>> GetSubmissionsByChallenge(long challengeId, long userId);
 }

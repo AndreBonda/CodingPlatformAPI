@@ -91,8 +91,8 @@ public class TournamentServiceTests
         _tournamentRepository
             .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(false));
-        _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetTournamentAdminAsync(It.IsAny<long>()))
+        _userRepository
+            .Setup(userRepo => userRepo.GetTournamentAdminAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()
             {
                 Id = 1
@@ -115,8 +115,8 @@ public class TournamentServiceTests
         _tournamentRepository
             .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(false));
-        _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetTournamentAdminAsync(It.IsAny<long>()))
+        _userRepository
+            .Setup(userRepo => userRepo.GetTournamentAdminAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()
             {
                 Id = 1
@@ -142,8 +142,8 @@ public class TournamentServiceTests
         _tournamentRepository
             .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(false));
-        _tournamentRepository
-            .Setup(tourRepo => tourRepo.GetTournamentAdminAsync(It.IsAny<long>()))
+        _userRepository
+            .Setup(userRepo => userRepo.GetTournamentAdminAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()
             {
                 Id = 2

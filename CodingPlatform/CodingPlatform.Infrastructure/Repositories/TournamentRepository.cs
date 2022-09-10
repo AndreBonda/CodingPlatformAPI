@@ -38,15 +38,6 @@ public class TournamentRepository : BaseRepository<Tournament>, ITournamentRepos
             .AnyAsync(utp => utp.Tournament.Id == tournamentId && utp.User.Id == userId);
     }
 
-    public async Task<User> GetTournamentAdminAsync(long tournamentId)
-    {
-        var tournament = await dbCtx.Set<Tournament>()
-            .Include(t => t.Admin)
-            .FirstOrDefaultAsync(x => x.Id == tournamentId);
-        
-        return tournament?.Admin;
-    }
-
     public async Task<UserTournamentParticipations> AddSubscriptionAsync(Tournament tournament, User user)
     {
         var inserted = await dbCtx.Set<UserTournamentParticipations>()
