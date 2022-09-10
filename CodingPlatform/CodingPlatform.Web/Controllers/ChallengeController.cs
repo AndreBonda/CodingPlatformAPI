@@ -73,9 +73,9 @@ public class ChallengeController : CustomControllerBase
             Content = subStatus.Content,
             Score = subStatus.Score,
             TotalAvailableTips = subStatus.TotalAvailableTips,
-            TipsUsed = subStatus.TipsUsed,
+            TipsUsed = subStatus.TipsUsed.ToArray(),
             TipsUsedNumber = subStatus.TipsUsedNumber(),
-            AvailableTips = subStatus.AvailableTips()
+            RemainingTips = subStatus.RemainingTips()
         });
     }
 

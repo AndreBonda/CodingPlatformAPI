@@ -31,7 +31,7 @@ public class SubmissionStatusDto
     public string[] TipsUsed { get; set; }
     public int TotalAvailableTips { get; set; }
     public int TipsUsedNumber { get; set; }
-    public int AvailableTips { get; set; }
+    public int RemainingTips { get; set; }
 
 }
 

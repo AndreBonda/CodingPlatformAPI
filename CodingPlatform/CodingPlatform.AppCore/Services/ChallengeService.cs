@@ -108,15 +108,14 @@ public class ChallengeService : IChallengeService
 
         var tipsUsedValue = tips.Where(t => t.Order <= submission.TipsNumber)
             .Select(t => t.Description)
-            .ToArray();
+            .ToList();
 
         var submissionStatus =
-            new SubmissionStatus(submission.DateCreated, challenge.EndDate, submission.DateSubmitted)
+            new SubmissionStatus(submission.DateCreated, challenge.EndDate, submission.DateSubmitted,
+                tips.Count(), tipsUsedValue)
             {
                 Content = submission.Content,
-                Score = submission.Score,
-                TotalAvailableTips = tips.Count(),
-                TipsUsed = tipsUsedValue
+                Score = submission.Score
             };
 
         return submissionStatus;
