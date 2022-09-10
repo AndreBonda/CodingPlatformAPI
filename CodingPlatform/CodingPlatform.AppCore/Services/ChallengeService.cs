@@ -78,11 +78,12 @@ public class ChallengeService : IChallengeService
         if (!challenge.IsInProgress())
             throw new BadRequestException("Challenge is not in progress");
 
-        if (await _submissionRepository.GetSubmissionByUserAndChallengeAsync(userId, challengeId) != null)
-            throw new BadRequestException("User has already started");
+        var submission = await _submissionRepository.GetSubmissionByUserAndChallengeAsync(userId, challengeId);
+        if (submission != null)
+            throw new BadRequestException($"User has already started. Submission id: {submission.Id}");
 
         var user = await _userRepository.GetByIdAsync(userId);
-        var submission = new Submission()
+        var newSubmission = new Submission()
         {
             DateSubmitted = null,
             Challenge = challenge,
@@ -91,22 +92,21 @@ public class ChallengeService : IChallengeService
             TipsNumber = 0,
             Score = 0
         };
-        submission = await _submissionRepository.InsertAsync(submission);
+        newSubmission = await _submissionRepository.InsertAsync(newSubmission);
 
-        return submission;
+        return newSubmission;
     }
 
-    public async Task<SubmissionStatus> GetSubmissionStatus(long challengeId, long userId)
+    public async Task<SubmissionStatus> GetSubmissionStatus(long submissionId, long userId)
     {
-        var challenge = await _challengeRepository.GetByIdAsync(challengeId);
-        if (challenge == null) throw new NotFoundException("Challenge does not exist");
-
-        var submission = await _submissionRepository.GetSubmissionByUserAndChallengeAsync(userId, challengeId);
+        var submission = await _submissionRepository.GetByIdAsync(submissionId);
         if (submission == null) throw new NotFoundException("Submission does not exist");
 
-        var tips = await _challengeRepository.GetChallengeTips(challengeId);
+        var user = await _submissionRepository.GetUserBySubmission(submissionId);
+        if (userId != user.Id) throw new ForbiddenException("User is not authorized to this submission");
 
-        return new SubmissionStatus(submission, challenge, tips)
+        var challenge = await _submissionRepository.GetChallengeBySubmission(submissionId);
+        return new SubmissionStatus(submission, challenge, challenge.Tips)
         {
             Content = submission.Content,
             Score = submission.Score
@@ -115,26 +115,34 @@ public class ChallengeService : IChallengeService
 
     public async Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId)
     {
-        var submission = await _submissionRepository.GetByIdAsync(submissionId);
-        if (submission == null) throw new NotFoundException("Submission does not exist");
-
-        var user = await _submissionRepository.GetUserBySubmission(submissionId);
-        if (userId != user.Id) throw new ForbiddenException("User is not authorized to add a tip for this submission");
-
-        var challenge = await _submissionRepository.GetChallengeBySubmission(submissionId);
-        var subStatus = new SubmissionStatus(submission, challenge, challenge.Tips)
-        {
-            Content = submission.Content,
-            Score = submission.Score
-        };
+        var subStatus = await GetSubmissionStatus(submissionId, userId);
 
         if (!subStatus.IsRemainingTip())
             throw new BadRequestException("No tips available");
-        
+
         subStatus.AddTips();
-        submission.TipsNumber = (byte)subStatus.UsedTips;
+        var submission = await _submissionRepository.GetByIdAsync(submissionId);
+        submission.TipsNumber = (byte) subStatus.UsedTips;
         await _submissionRepository.UpdateAsync(submission);
 
+        return subStatus;
+    }
+
+    public async Task<SubmissionStatus> EndSubmission(long submissionId, string content, long userId)
+    {
+        var subStatus = await GetSubmissionStatus(submissionId, userId);
+
+        if (subStatus.IsSubmissionDelivered())
+            throw new BadRequestException("Submission is already delivered");
+
+        if (subStatus.IsChallengeOver())
+            throw new BadRequestException("Challenge is over");
+
+        var submission = await _submissionRepository.GetByIdAsync(submissionId);
+        subStatus.EndSubmission(content);
+        submission.DateSubmitted = subStatus.SubmitDate;
+        submission.Content = subStatus.Content;
+        await _submissionRepository.UpdateAsync(submission);
         return subStatus;
     }
 }

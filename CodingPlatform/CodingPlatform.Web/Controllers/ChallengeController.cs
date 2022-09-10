@@ -56,14 +56,15 @@ public class ChallengeController : CustomControllerBase
         var submission = await _challengeService.StartChallenge(challengeId, GetCurrentUserId());
         return Created(nameof(StartChallenge), new
         {
+            IdSubmission = submission.Id,
             Started = submission.DateCreated
         });
     }
 
-    [HttpGet("submission_status/{challengeId}")]
-    public async Task<IActionResult> GetSubmissionStatus(long challengeId)
+    [HttpGet("submission_status/{submissionId}")]
+    public async Task<IActionResult> GetSubmissionStatus(long submissionId)
     {
-        var subStatus = await _challengeService.GetSubmissionStatus(challengeId, GetCurrentUserId());
+        var subStatus = await _challengeService.GetSubmissionStatus(submissionId, GetCurrentUserId());
         return Ok(new SubmissionStatusDto
         {
             SubmissionId = subStatus.SubmissionId,
@@ -101,4 +102,24 @@ public class ChallengeController : CustomControllerBase
         });
     }
 
+    [HttpPost("submission_end/{submissionId}")]
+    public async Task<IActionResult> EndSubmission(long submissionId, [FromBody] string content)
+    {
+        var subStatus = await _challengeService.EndSubmission(submissionId, content, GetCurrentUserId());
+        
+        return Created(nameof(AddSubmissionTip), new SubmissionStatusDto
+        {
+            SubmissionId = subStatus.SubmissionId,
+            Started = subStatus.StartDate,
+            EndDate = subStatus.EndDate,
+            Submitted = subStatus.SubmitDate,
+            ChallengeTitle = subStatus.ChallengeTitle,
+            ChallengeDescription = subStatus.ChallengeDescription,
+            Content = subStatus.Content,
+            Score = subStatus.Score,
+            ChallengeTipAvailableNumber = subStatus.ChallengeTipAvailableNumber(),
+            UsedTips = subStatus.GetUsedTips().ToArray(),
+            RemainingTipsNumber = subStatus.RemainingTipsNumber()
+        });
+    }
 }
