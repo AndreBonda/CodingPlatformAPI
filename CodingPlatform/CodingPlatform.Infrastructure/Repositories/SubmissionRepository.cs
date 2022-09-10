@@ -15,4 +15,22 @@ public class SubmissionRepository : BaseRepository<Submission>, ISubmissionRepos
         return await dbCtx.Submissions.FirstOrDefaultAsync(
             s => s.User.Id == userId && s.Challenge.Id == challengeId);
     }
+
+    public async Task<User> GetUserBySubmission(long submissionId)
+    {
+        return (
+            await dbCtx.Submissions
+                .Include(s => s.User)
+                .SingleAsync(s => s.Id == submissionId)
+        ).User;
+    }
+
+    public async Task<Challenge> GetChallengeBySubmission(long submissionId)
+    {
+        return (
+            await dbCtx.Submissions
+                .Include(s => s.Challenge).ThenInclude(c => c.Tips)
+                .FirstAsync(s => s.Id == submissionId)
+        ).Challenge;
+    }
 }

@@ -23,15 +23,17 @@ public class InfoInProgressChallengeDto
 
 public class SubmissionStatusDto
 {
+    public long SubmissionId { get; set; }
     public DateTime Started { get; set; }
     public DateTime EndDate { get; set; }
     public DateTime? Submitted { get; set; }
+    public string ChallengeTitle { get; set; }
+    public string ChallengeDescription { get; set; }
     public string Content { get; set; }
     public decimal Score { get; set; }
-    public string[] TipsUsed { get; set; }
-    public int TotalAvailableTips { get; set; }
-    public int TipsUsedNumber { get; set; }
-    public int RemainingTips { get; set; }
+    public string[] UsedTips { get; set; }
+    public int ChallengeTipAvailableNumber { get; set; }
+    public int RemainingTipsNumber { get; set; }
 
 }
 

@@ -1,5 +1,4 @@
 using CodingPlatform.AppCore.Interfaces.Services;
-using CodingPlatform.Domain.Entities;
 using CodingPlatform.Web.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -67,15 +66,38 @@ public class ChallengeController : CustomControllerBase
         var subStatus = await _challengeService.GetSubmissionStatus(challengeId, GetCurrentUserId());
         return Ok(new SubmissionStatusDto
         {
+            SubmissionId = subStatus.SubmissionId,
             Started = subStatus.StartDate,
             EndDate = subStatus.EndDate,
             Submitted = subStatus.SubmitDate,
+            ChallengeTitle = subStatus.ChallengeTitle,
+            ChallengeDescription = subStatus.ChallengeDescription,
             Content = subStatus.Content,
             Score = subStatus.Score,
-            TotalAvailableTips = subStatus.TotalAvailableTips,
-            TipsUsed = subStatus.TipsUsed.ToArray(),
-            TipsUsedNumber = subStatus.TipsUsedNumber(),
-            RemainingTips = subStatus.RemainingTips()
+            ChallengeTipAvailableNumber = subStatus.ChallengeTipAvailableNumber(),
+            UsedTips = subStatus.GetUsedTips().ToArray(),
+            RemainingTipsNumber = subStatus.RemainingTipsNumber()
+        });
+    }
+
+    [HttpPost("submission_add_tip/{submissionId}")]
+    public async Task<IActionResult> AddSubmissionTip(long submissionId)
+    {
+        var subStatus = await _challengeService.AddSubmissionTip(submissionId, GetCurrentUserId());
+        
+        return Created(nameof(AddSubmissionTip), new SubmissionStatusDto
+        {
+            SubmissionId = subStatus.SubmissionId,
+            Started = subStatus.StartDate,
+            EndDate = subStatus.EndDate,
+            Submitted = subStatus.SubmitDate,
+            ChallengeTitle = subStatus.ChallengeTitle,
+            ChallengeDescription = subStatus.ChallengeDescription,
+            Content = subStatus.Content,
+            Score = subStatus.Score,
+            ChallengeTipAvailableNumber = subStatus.ChallengeTipAvailableNumber(),
+            UsedTips = subStatus.GetUsedTips().ToArray(),
+            RemainingTipsNumber = subStatus.RemainingTipsNumber()
         });
     }
 

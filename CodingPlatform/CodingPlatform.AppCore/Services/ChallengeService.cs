@@ -28,16 +28,16 @@ public class ChallengeService : IChallengeService
     {
         var now = DateTime.UtcNow;
         var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
-        
+
         if (tournament == null) throw new NotFoundException("Tournament does not exist");
-        
+
         var adminUser = await _tournamentRepository.GetTournamentAdminAsync(tournamentId);
         if (userId != adminUser.Id)
-            throw new ForbiddenException("User can not create a challenge for this tournament");
-        
-        if (await _challengeRepository.GetActiveChallengeByTournament(tournamentId, now) != null) 
+            throw new ForbiddenException("User is not authorized to create a challenge for this tournament");
+
+        if (await _challengeRepository.GetActiveChallengeByTournament(tournamentId, now) != null)
             throw new BadRequestException($@"There is a challenge in progress");
-        
+
         var newChallenge = new Challenge()
         {
             Title = title,
@@ -45,16 +45,16 @@ public class ChallengeService : IChallengeService
             EndDate = DateTime.UtcNow.AddHours(hours),
             DateCreated = now,
         };
-        
-        if(tips != null)
-            for(byte i = 0; i < tips.Count(); i++)
+
+        if (tips != null)
+            for (byte i = 0; i < tips.Count(); i++)
                 newChallenge.Tips.Add(new Tip()
                 {
                     Description = tips.ElementAt(i),
-                    Order = (byte)(i+1),
+                    Order = (byte) (i + 1),
                     DateCreated = now
                 });
-        
+
         tournament.Challenges.Add(newChallenge);
         await _tournamentRepository.UpdateAsync(tournament);
 
@@ -106,18 +106,35 @@ public class ChallengeService : IChallengeService
 
         var tips = await _challengeRepository.GetChallengeTips(challengeId);
 
-        var tipsUsedValue = tips.Where(t => t.Order <= submission.TipsNumber)
-            .Select(t => t.Description)
-            .ToList();
+        return new SubmissionStatus(submission, challenge, tips)
+        {
+            Content = submission.Content,
+            Score = submission.Score
+        };
+    }
 
-        var submissionStatus =
-            new SubmissionStatus(submission.DateCreated, challenge.EndDate, submission.DateSubmitted,
-                tips.Count(), tipsUsedValue)
-            {
-                Content = submission.Content,
-                Score = submission.Score
-            };
+    public async Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId)
+    {
+        var submission = await _submissionRepository.GetByIdAsync(submissionId);
+        if (submission == null) throw new NotFoundException("Submission does not exist");
 
-        return submissionStatus;
+        var user = await _submissionRepository.GetUserBySubmission(submissionId);
+        if (userId != user.Id) throw new ForbiddenException("User is not authorized to add a tip for this submission");
+
+        var challenge = await _submissionRepository.GetChallengeBySubmission(submissionId);
+        var subStatus = new SubmissionStatus(submission, challenge, challenge.Tips)
+        {
+            Content = submission.Content,
+            Score = submission.Score
+        };
+
+        if (!subStatus.IsRemainingTip())
+            throw new BadRequestException("No tips available");
+        
+        subStatus.AddTips();
+        submission.TipsNumber = (byte)subStatus.UsedTips;
+        await _submissionRepository.UpdateAsync(submission);
+
+        return subStatus;
     }
 }

@@ -1,46 +1,44 @@
+using CodingPlatform.Domain.Entities;
+
 namespace CodingPlatform.Domain;
 
 public class SubmissionStatus
 {
-    public DateTime StartDate { get;}
+    public long SubmissionId { get; }
+    public DateTime StartDate { get; }
     public DateTime EndDate { get; }
-    public DateTime? SubmitDate { get;}
-    public List<string> TipsUsed { get; }
-    public int TotalAvailableTips { get; }
+    public DateTime? SubmitDate { get; }
+    public string ChallengeTitle { get; }
+    public string ChallengeDescription { get; }
+    public List<Tip> ChallengeTips { get; }
+    public int UsedTips { get; private set; }
     public string Content { get; init; }
     public decimal Score { get; init; }
-    
-    public SubmissionStatus(DateTime startDate, DateTime endDate, DateTime? submitDate = null, 
-        int totalAvailableTips = 0, List<string> tipsUsed = null)
+
+    public SubmissionStatus(Submission submission, Challenge challenge, IEnumerable<Tip> challengeTips)
     {
-        if (startDate >= endDate)
-            throw new ArgumentException("StartDate must be lower than EndDate");
-
-        if (submitDate.HasValue && submitDate <= startDate)
-            throw new ArgumentException("SubmitDate must be greater than startDate");
-
-        if (submitDate.HasValue && submitDate > endDate)
-            throw new ArgumentException("SubmitDate must be lower or equal than EndDate");
-
-        if (tipsUsed != null && tipsUsed.Count > totalAvailableTips)
-            throw new ArgumentException("Tips used length must be lower or equal than TotalAvailableTips");
-
-        StartDate = startDate;
-        EndDate = endDate;
-        SubmitDate = submitDate;
-        TotalAvailableTips = totalAvailableTips;
-        TipsUsed = tipsUsed ?? new List<string>();
+        SubmissionId = submission.Id;
+        StartDate = submission.DateCreated;
+        SubmitDate = submission.DateSubmitted;
+        EndDate = challenge.EndDate;
+        ChallengeTitle = challenge.Title;
+        ChallengeDescription = challenge.Description;
+        ChallengeTips = challengeTips.ToList();
+        UsedTips = submission.TipsNumber;
     }
 
-    public int TipsUsedNumber() => TipsUsed.Count;
-    public int RemainingTips() => TotalAvailableTips - TipsUsed.Count;
+    public int ChallengeTipAvailableNumber() => ChallengeTips.Count;
+    public int RemainingTipsNumber() => ChallengeTips.Count - UsedTips;
 
-    public bool AddTips(string tip)
+    public bool IsRemainingTip() => (ChallengeTips.Count - UsedTips) > 0;
+
+    public void AddTips()
     {
-        if (tip == null) throw new ArgumentException();
-        if (RemainingTips() == 0) return false;
-        TipsUsed.Add(tip);
-        return true;
+        if (RemainingTipsNumber() > 0)
+            UsedTips += 1;
     }
 
+    public IEnumerable<string> GetUsedTips() => ChallengeTips
+        .Where(t => t.Order <= UsedTips)
+        .Select(t => t.Description);
 }
