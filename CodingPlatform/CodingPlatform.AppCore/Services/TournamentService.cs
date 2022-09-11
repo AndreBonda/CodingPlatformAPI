@@ -78,7 +78,6 @@ public class TournamentService : ITournamentService
         if (tournament == null) 
             throw new NotFoundException("Tournament does not exist");
         
-        // recupera username degli utenti iscritti al tornero
         var usernames = await _userRepository.GetSubscribedUsernamesAsync(tournamentId);
         var submissions = await _submissionRepository.GetSubmissionByTournament(tournamentId);
         var map = new Dictionary<string, LeaderBoardPosition>();
@@ -94,7 +93,7 @@ public class TournamentService : ITournamentService
             .ToList();
 
         for (int i = 0; i < positions.Count(); i++)
-            positions[i].Place = i;
+            positions[i].Place = i+1;
 
         return positions;
     }
