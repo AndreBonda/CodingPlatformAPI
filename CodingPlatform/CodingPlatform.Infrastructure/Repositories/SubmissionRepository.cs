@@ -22,4 +22,15 @@ public class SubmissionRepository : BaseRepository<Submission>, ISubmissionRepos
             .Where(s => s.Challenge.Id == challengeId)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Submission>> GetSubmissionByTournament(long tournamentId)
+    {
+        var tournament = await dbCtx.Tournaments
+            .Include(t => t.Challenges)
+            .ThenInclude(c => c.Submissions)
+            .ThenInclude(s => s.User)
+            .FirstAsync(t => t.Id == tournamentId);
+
+        return tournament.Challenges.SelectMany(c => c.Submissions);
+    }
 }

@@ -58,4 +58,13 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             .FirstAsync(s => s.Id == submissionId);
         return sub.Challenge.Tournament.Admin.Id == userId;
     }
+
+    public async Task<IEnumerable<string>> GetSubscribedUsernamesAsync(long tournamentId)
+    {
+        return await dbCtx.UserTournamentParticipations
+            .Include(utp => utp.User)
+            .Where(utp => utp.Tournament.Id == tournamentId)
+            .Select(utp => utp.User.UserName)
+            .ToListAsync();
+    }
 }

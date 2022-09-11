@@ -65,4 +65,18 @@ public class TournamentController : CustomControllerBase
             DateCreated = result.DateCreated
         });
     }
+
+    [HttpGet("tournament_leaderboard/{tournamentId}")]
+    public async Task<IActionResult> TournamentLeaderBoard(long tournamentId)
+    {
+        var positions = await _tournamentService.GetTournamentLeaderBoard(tournamentId);
+
+        return Ok(positions.Select(p => new LeaderBoardPositionDto()
+        {
+            Place = p.Place,
+            AveragePoints = p.AveragePoints,
+            TotalPoints = p.TotalPoints,
+            UserName = p.UserName
+        }));
+    }
 }

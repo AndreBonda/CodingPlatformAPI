@@ -10,12 +10,14 @@ namespace CodingPlatform.AppCore.Services;
 public class TournamentService : ITournamentService
 {
     private readonly ITournamentRepository _tournamentRepository;
+    private readonly ISubmissionRepository _submissionRepository;
     private readonly IUserRepository _userRepository;
 
-    public TournamentService(IUserRepository userRepository, ITournamentRepository tournamentRepository)
+    public TournamentService(IUserRepository userRepository, ITournamentRepository tournamentRepository, ISubmissionRepository submissionRepository)
     {
         _userRepository = userRepository;
         _tournamentRepository = tournamentRepository;
+        _submissionRepository = submissionRepository;
     }
 
     public async Task<Tournament> Create(string tournamentName, int maxParticipants, long userId)
@@ -68,5 +70,32 @@ public class TournamentService : ITournamentService
         
         var currentUser = await _userRepository.GetByIdAsync(userId);
         return await _tournamentRepository.AddSubscriptionAsync(tournament, currentUser);
+    }
+
+    public async Task<IEnumerable<LeaderBoardPosition>> GetTournamentLeaderBoard(long tournamentId)
+    {
+        var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
+        if (tournament == null) 
+            throw new NotFoundException("Tournament does not exist");
+        
+        // recupera username degli utenti iscritti al tornero
+        var usernames = await _userRepository.GetSubscribedUsernamesAsync(tournamentId);
+        var submissions = await _submissionRepository.GetSubmissionByTournament(tournamentId);
+        var map = new Dictionary<string, LeaderBoardPosition>();
+
+        foreach (var u in usernames)
+            map.Add(u, new LeaderBoardPosition(u));
+
+        foreach (var sub in submissions)
+            map[sub.User.UserName].AddScore(sub.Score);
+
+        var positions = map.Values
+            .OrderByDescending(p => p.TotalPoints)
+            .ToList();
+
+        for (int i = 0; i < positions.Count(); i++)
+            positions[i].Place = i;
+
+        return positions;
     }
 }

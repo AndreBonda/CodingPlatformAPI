@@ -14,13 +14,16 @@ public class TournamentServiceTests
     private ITournamentService _tournamentService;
     private Mock<ITournamentRepository> _tournamentRepository;
     private Mock<IUserRepository> _userRepository;
+    private Mock<ISubmissionRepository> _submissionRepository;
 
     [SetUp]
     public void SetUp()
     {
         _tournamentRepository = new Mock<ITournamentRepository>();
         _userRepository = new Mock<IUserRepository>();
-        _tournamentService = new TournamentService(_userRepository.Object, _tournamentRepository.Object);
+        _submissionRepository = new Mock<ISubmissionRepository>();
+        _tournamentService = new TournamentService(_userRepository.Object, _tournamentRepository.Object,
+            _submissionRepository.Object);
     }
 
     [Test]

@@ -30,3 +30,11 @@ public class CreateTournamentDto
     [Range(2, int.MaxValue)]
     public int MaxParticipants { get; set; }
 }
+
+public class LeaderBoardPositionDto
+{
+    public int Place { get; set; }
+    public string UserName { get; set; }
+    public decimal TotalPoints { get; set; }
+    public decimal AveragePoints { get; set; }
+}

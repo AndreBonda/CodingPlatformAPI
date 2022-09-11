@@ -17,4 +17,5 @@ public interface IUserRepository : IRepository<User>
     Task<User> GetAdminByChallenge(long challengeId);
     Task<User> GetTournamentAdminAsync(long tournamentId);
     Task<bool> IsUserAuthorizedToEvaluateSubmission(long userId, long submissionId);
+    Task<IEnumerable<string>> GetSubscribedUsernamesAsync(long tournamentId);
 }
