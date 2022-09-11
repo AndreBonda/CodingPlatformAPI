@@ -2,7 +2,7 @@ using CodingPlatform.AppCore.Filters;
 using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.Domain.Entities;
 
-namespace CodingPlatform.AppCore.Interfaces.Services;
+namespace CodingPlatform.AppCore.Interfaces.Repositories;
 
 public interface IUserRepository : IRepository<User>
 {
@@ -16,4 +16,5 @@ public interface IUserRepository : IRepository<User>
     /// <returns></returns>
     Task<User> GetAdminByChallenge(long challengeId);
     Task<User> GetTournamentAdminAsync(long tournamentId);
+    Task<bool> IsUserAuthorizedToEvaluateSubmission(long userId, long submissionId);
 }

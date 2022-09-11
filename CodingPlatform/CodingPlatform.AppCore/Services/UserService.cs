@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Domain.Entities;
 using Microsoft.IdentityModel.Tokens;

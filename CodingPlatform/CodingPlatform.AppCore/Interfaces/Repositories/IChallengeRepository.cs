@@ -10,10 +10,12 @@ public interface IChallengeRepository : IRepository<Challenge>
     /// <param name="userId"></param>
     Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId);
 
+    Task<IEnumerable<Challenge>> GetChallengesAsync();
     /// <summary>
     /// Return in progress challenge of the tournament.
     /// </summary>
     /// <param name="tournamentId"></param>
     /// <param name="now"></param>
     Task<Challenge> GetActiveChallengeByTournament(long tournamentId, DateTime? now = null);
+    Task<Challenge> GetChallengeBySubmission(long submissionId);
 }

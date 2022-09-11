@@ -1,4 +1,5 @@
 using System.Security.Authentication;
+using CodingPlatform.AppCore.Interfaces.Repositories;
 using Microsoft.Extensions.Configuration;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Domain.Entities;
@@ -7,7 +8,6 @@ using CodingPlatform.Web.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using NuGet.Frameworks;
 using NUnit.Framework;
 
 namespace CodingPlatform.Web.UnitTests;

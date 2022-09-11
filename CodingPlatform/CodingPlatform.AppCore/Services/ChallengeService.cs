@@ -1,3 +1,4 @@
+using CodingPlatform.AppCore.Filters;
 using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Domain;
@@ -61,9 +62,9 @@ public class ChallengeService : IChallengeService
         return newChallenge;
     }
 
-    public async Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId)
+    public async Task<IEnumerable<Challenge>> GetChallenges()
     {
-        return await _challengeRepository.GetActiveChallengesByUser(userId);
+        return await _challengeRepository.GetChallengesAsync();
     }
 
     public async Task<Submission> StartChallenge(long challengeId, long userId)
@@ -105,45 +106,23 @@ public class ChallengeService : IChallengeService
         var user = await _userRepository.GetUserBySubmission(submissionId);
         if (userId != user.Id) throw new ForbiddenException("User is not authorized to this submission");
 
-        var challenge = await _submissionRepository.GetChallengeBySubmission(submissionId);
-        return new SubmissionStatus(submission, challenge, challenge.Tips)
-        {
-            Content = submission.Content,
-            Score = submission.Score
-        };
+        var challenge = await _challengeRepository.GetChallengeBySubmission(submissionId);
+        return new SubmissionStatus(submission, challenge, challenge.Tips);
     }
 
     public async Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId)
     {
         var subStatus = await GetSubmissionStatus(submissionId, userId);
-        
-        if (subStatus.IsSubmissionDelivered())
-            throw new BadRequestException("Submission is already delivered");
-
-        if (subStatus.IsChallengeOver())
-            throw new BadRequestException("Challenge is over");
-
-        if (!subStatus.IsRemainingTip())
-            throw new BadRequestException("No tips available");
-
         subStatus.AddTips();
         var submission = await _submissionRepository.GetByIdAsync(submissionId);
         submission.TipsNumber = (byte) subStatus.UsedTips;
         await _submissionRepository.UpdateAsync(submission);
-
         return subStatus;
     }
 
     public async Task<SubmissionStatus> EndSubmission(long submissionId, string content, long userId)
     {
         var subStatus = await GetSubmissionStatus(submissionId, userId);
-
-        if (subStatus.IsSubmissionDelivered())
-            throw new BadRequestException("Submission is already delivered");
-
-        if (subStatus.IsChallengeOver())
-            throw new BadRequestException("Challenge is over");
-
         var submission = await _submissionRepository.GetByIdAsync(submissionId);
         subStatus.EndSubmission(content);
         submission.DateSubmitted = subStatus.SubmitDate;
@@ -161,5 +140,21 @@ public class ChallengeService : IChallengeService
         if (userId != admin.Id) throw new ForbiddenException("User is not to this challenge");
 
         return await _submissionRepository.GetSubmissionsByChallengeAsync(challengeId);
+    }
+
+    public async Task<SubmissionStatus> EvaluateSubmission(long submissionId, int score, long userId)
+    {
+        var submission = await _submissionRepository.GetByIdAsync(submissionId);
+        if (submission == null) throw new NotFoundException("Submission does not exist");
+
+        if (!await _userRepository.IsUserAuthorizedToEvaluateSubmission(userId, submissionId))
+            throw new ForbiddenException("User is not authorized to this submission");
+
+        var challenge = await _challengeRepository.GetChallengeBySubmission(submissionId);
+        var subStatus = new SubmissionStatus(submission, challenge, challenge.Tips);
+        subStatus.SetScore(score);
+        submission.Score = subStatus.Score;
+        await _submissionRepository.UpdateAsync(submission);
+        return subStatus;
     }
 }

@@ -1,4 +1,5 @@
 using System.Security.Authentication;
+using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.AppCore.Services;
 using CodingPlatform.Domain.Entities;

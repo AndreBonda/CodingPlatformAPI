@@ -1,5 +1,5 @@
 using System.Security.Authentication;
-using CodingPlatform.AppCore.Filters;
+using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Domain.Entities;
 using CodingPlatform.Web.DTO;

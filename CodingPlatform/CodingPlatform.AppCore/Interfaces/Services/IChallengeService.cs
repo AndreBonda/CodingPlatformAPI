@@ -7,16 +7,12 @@ public interface IChallengeService
 {
     Task<Challenge> CreateChallenge(long tournamentId, string title, string description,
         int hours, long userId, IEnumerable<string> tips = null);
-
-    /// <summary>
-    /// Given an user id returns his available challenges
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns>Returns challenges</returns>
-    Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId);
+    
+    Task<IEnumerable<Challenge>> GetChallenges();
     Task<Submission> StartChallenge(long challengeId, long userId);
     Task<SubmissionStatus> GetSubmissionStatus(long submissionId, long userId);
     Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId);
     Task<SubmissionStatus> EndSubmission(long submissionId, string content, long userId);
     Task<IEnumerable<Submission>> GetSubmissionsByChallenge(long challengeId, long userId);
+    Task<SubmissionStatus> EvaluateSubmission(long submissionId, int score, long userId);
 }

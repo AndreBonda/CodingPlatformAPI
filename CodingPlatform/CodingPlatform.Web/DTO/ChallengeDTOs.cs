@@ -19,6 +19,7 @@ public class InfoInProgressChallengeDto
     public DateTime DateStart { get; set; }
     public DateTime DateEnd { get; set; }
     public string TournamentName { get; set; }
+    public string Admin { get; set; }
 }
 
 public class CreateChallengeDto

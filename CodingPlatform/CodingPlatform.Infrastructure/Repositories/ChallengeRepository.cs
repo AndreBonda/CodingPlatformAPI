@@ -25,7 +25,15 @@ public class ChallengeRepository : BaseRepository<Challenge>, IChallengeReposito
                         tournamentIds.Contains(c.Tournament.Id))
             .ToListAsync();
     }
-    
+
+    public async Task<IEnumerable<Challenge>> GetChallengesAsync()
+    {
+        return await dbCtx.Challenges
+            .Include(c => c.Tournament).ThenInclude(t => t.Admin)
+            .OrderByDescending(x => x.DateCreated)
+            .ToListAsync();
+    }
+
     public async Task<Challenge> GetActiveChallengeByTournament(long tournamentId, DateTime? now = null)
     {
         now ??= DateTime.UtcNow;
@@ -33,5 +41,14 @@ public class ChallengeRepository : BaseRepository<Challenge>, IChallengeReposito
         return await dbCtx.Challenges.FirstOrDefaultAsync(c =>
             c.Tournament.Id == tournamentId &&
             c.DateCreated <= now && c.EndDate >= now);
+    }
+    
+    public async Task<Challenge> GetChallengeBySubmission(long submissionId)
+    {
+        return (
+            await dbCtx.Submissions
+                .Include(s => s.Challenge).ThenInclude(c => c.Tips)
+                .FirstAsync(s => s.Id == submissionId)
+        ).Challenge;
     }
 }

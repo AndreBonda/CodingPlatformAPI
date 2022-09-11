@@ -1,5 +1,4 @@
-using CodingPlatform.AppCore.Filters;
-using CodingPlatform.AppCore.Interfaces.Services;
+using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,5 +47,15 @@ public class UserRepository : BaseRepository<User>, IUserRepository
             .FirstOrDefaultAsync(x => x.Id == tournamentId);
         
         return tournament?.Admin;
+    }
+
+    public async Task<bool> IsUserAuthorizedToEvaluateSubmission(long userId, long submissionId)
+    {
+        var sub = await dbCtx.Submissions
+            .Include(s => s.Challenge)
+            .ThenInclude(c => c.Tournament)
+            .ThenInclude(t => t.Admin)
+            .FirstAsync(s => s.Id == submissionId);
+        return sub.Challenge.Tournament.Admin.Id == userId;
     }
 }
