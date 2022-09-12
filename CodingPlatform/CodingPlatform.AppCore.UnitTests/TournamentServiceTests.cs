@@ -1,6 +1,7 @@
 using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.AppCore.Services;
+using CodingPlatform.Domain;
 using CodingPlatform.Domain.Entities;
 using CodingPlatform.Domain.Exception;
 using Moq;
@@ -53,11 +54,6 @@ public class TournamentServiceTests
         _tournamentRepository.Verify(tourRepo => tourRepo.InsertAsync(It.IsAny<Tournament>()));
     }
 
-    /*
-     *
-     * Called correctly --> store Subscribtion
-     */
-    
     [Test]
     public void SubscribeUser_TournamentDoesNotExist_ThrowNotFoundException()
     {
@@ -159,5 +155,119 @@ public class TournamentServiceTests
 
         _tournamentRepository
             .Verify(tourRepo => tourRepo.AddSubscriptionAsync(It.IsAny<Tournament>(), It.IsAny<User>()));
+    }
+
+    [Test]
+    public void GetTournamentLeaderBoard_TournamentDoesNotExist_ThrowNotFoundException()
+    {
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
+            .Returns(Task.FromResult<Tournament>(null));
+
+        var exc = Assert.ThrowsAsync<NotFoundException>(() => _tournamentService.GetTournamentLeaderBoard(1));
+        Assert.That(exc.Message, Does.Contain("tournament").IgnoreCase);
+    }
+    
+    [Test]
+    public async Task GetTournamentLeaderBoard_TournamentWithoutSubscribed_ReturnEmptyPositionsCollection()
+    {
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
+            .ReturnsAsync(new Tournament());
+        _userRepository
+            .Setup(userRepo => userRepo.GetSubscribedUsernamesAsync(It.IsAny<long>()))
+            .ReturnsAsync(new List<string>());
+        _submissionRepository
+            .Setup(subRepo => subRepo.GetSubmissionByTournament(It.IsAny<long>()))
+            .ReturnsAsync(new List<Submission>());
+
+        var positions = await _tournamentService.GetTournamentLeaderBoard(1);
+        
+        Assert.That(positions, Is.Not.Null);
+        Assert.That(positions.Count(), Is.EqualTo(0));
+    }
+    
+    [Test]
+    public async Task GetTournamentLeaderBoard_SubscriberWithoutAnySubmission_AllScoresAreZero()
+    {
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
+            .ReturnsAsync(new Tournament());
+        _userRepository
+            .Setup(userRepo => userRepo.GetSubscribedUsernamesAsync(It.IsAny<long>()))
+            .ReturnsAsync(new List<string>()
+            {
+                "usernameA",
+                "usernameB"
+            });
+        _submissionRepository
+            .Setup(subRepo => subRepo.GetSubmissionByTournament(It.IsAny<long>()))
+            .ReturnsAsync(new List<Submission>());
+
+        var positions = await _tournamentService.GetTournamentLeaderBoard(1);
+
+        Assert.That(positions, Is.Not.Null);
+        Assert.That(positions.Count(), Is.EqualTo(2));
+        var usernameAPosition = positions.Single(p => p.UserName == "usernameA");
+        var usernameBPosition = positions.Single(p => p.UserName == "usernameB");
+        Assert.That(usernameAPosition.TotalPoints, Is.EqualTo(0m));
+        Assert.That(usernameBPosition.TotalPoints, Is.EqualTo(0m));
+    }
+    
+    [Test]
+    public async Task GetTournamentLeaderBoard_SubscriberWithMultipleSubmission_CorrectLeaderboardSetup()
+    {
+        _tournamentRepository
+            .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
+            .ReturnsAsync(new Tournament());
+        _userRepository
+            .Setup(userRepo => userRepo.GetSubscribedUsernamesAsync(It.IsAny<long>()))
+            .ReturnsAsync(new List<string>()
+            {
+                "usernameA",
+                "usernameB"
+            });
+        _submissionRepository
+            .Setup(subRepo => subRepo.GetSubmissionByTournament(It.IsAny<long>()))
+            .ReturnsAsync(new List<Submission>()
+            {
+                new Submission()
+                {
+                    Score = 5,
+                    User = new User()
+                    {
+                        UserName = "usernameA"
+                    }
+                },
+                new Submission()
+                {
+                    Score = 4,
+                    User = new User()
+                    {
+                        UserName = "usernameA"
+                    }
+                },
+                new Submission()
+                {
+                    Score = 2,
+                    User = new User()
+                    {
+                        UserName = "usernameB"
+                    }
+                }
+            });
+
+        var positions = await _tournamentService.GetTournamentLeaderBoard(1);
+
+        Assert.That(positions, Is.Not.Null);
+        Assert.That(positions.Count(), Is.EqualTo(2));
+        var usernameAPosition = positions.ElementAt(0);
+        var usernameBPosition = positions.ElementAt(1);
+        Assert.That(usernameAPosition.TotalPoints, Is.EqualTo(9m));
+        Assert.That(usernameAPosition.AveragePoints, Is.EqualTo(4.5m));
+        Assert.That(usernameAPosition.Place, Is.EqualTo(1));
+        Assert.That(usernameBPosition.TotalPoints, Is.EqualTo(2m));
+        Assert.That(usernameBPosition.AveragePoints, Is.EqualTo(2m));
+        Assert.That(usernameBPosition.Place, Is.EqualTo(2));
     }
 }

@@ -19,7 +19,8 @@ public class SubmissionStatus
     public int UsedTips { get; private set; }
     public string Content { get; private set; }
     public decimal Score { get; private set; }
-
+    
+    //TODO: refactor and pass one parameter with required value
     public SubmissionStatus(Submission submission, Challenge challenge, IEnumerable<Tip> challengeTips)
     {
         SubmissionId = submission.Id;
@@ -28,7 +29,7 @@ public class SubmissionStatus
         EndDate = challenge.EndDate;
         ChallengeTitle = challenge.Title;
         ChallengeDescription = challenge.Description;
-        ChallengeTips = challengeTips.ToList();
+        ChallengeTips = challengeTips != null ? challengeTips.ToList() : new List<Tip>();
         UsedTips = submission.TipsNumber;
         Content = submission.Content;
         Score = submission.Score;
@@ -63,14 +64,15 @@ public class SubmissionStatus
         if(!IsSubmissionDelivered()) 
             throw new BadRequestException("Submission is not delivered");
 
-        if (startingScore < _MIN_STARTING_SCORE && startingScore > _MAX_STARTING_SCORE)
+        if (startingScore < _MIN_STARTING_SCORE || startingScore > _MAX_STARTING_SCORE)
             throw new ArgumentException($"Starting score must be between ${_MIN_STARTING_SCORE} and {_MAX_STARTING_SCORE}");
 
         decimal tipMalusValue = _MAX_STARTING_SCORE * _TIP_MALUS_PERCENTAGE;
         Score = Math.Max(0, startingScore - tipMalusValue * UsedTips); //avoid negative score
     }
-    
+
     public IEnumerable<string> GetUsedTips() => ChallengeTips
         .Where(t => t.Order <= UsedTips)
+        .OrderBy(t => t.Order)
         .Select(t => t.Description);
 }
