@@ -1,6 +1,6 @@
 namespace CodingPlatform.Domain;
 
-public class LeaderBoardPosition
+public class  LeaderBoardPosition
 {
     public string UserName { get;}
     public decimal TotalPoints { get; private set; }

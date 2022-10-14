@@ -55,7 +55,7 @@ public class ChallengeServiceTests
         int adminUser = 2;
         _tournamentRepository
             .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
-            .Returns(Task.FromResult(new Tournament()));
+            .Returns(Task.FromResult(new Tournament("tournament",2,new User())));
         _userRepository
             .Setup(userRepo => userRepo.GetTournamentAdminAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()
@@ -73,7 +73,7 @@ public class ChallengeServiceTests
     {
         _tournamentRepository
             .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
-            .Returns(Task.FromResult(new Tournament()));
+            .Returns(Task.FromResult(new Tournament("tournament",2,new User())));
         _userRepository
             .Setup(userRepo => userRepo.GetTournamentAdminAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(new User()
@@ -93,7 +93,7 @@ public class ChallengeServiceTests
     [Test]
     public async Task CreateChallenge_WhenCalledCorrectly_StoreChallenge()
     {
-        var tournament = new Tournament();
+        var tournament = new Tournament("tournament",2,new User());
         _tournamentRepository
             .Setup(tourRepo => tourRepo.GetByIdAsync(It.IsAny<long>()))
             .Returns(Task.FromResult(tournament));
@@ -142,7 +142,7 @@ public class ChallengeServiceTests
             .Returns(Task.FromResult(new Challenge()));
         _tournamentRepository
             .Setup(tourRepo => tourRepo.GetTournamentByChallengeAsync(It.IsAny<long>()))
-            .Returns(Task.FromResult(new Tournament()));
+            .Returns(Task.FromResult(new Tournament("tournament",2,new User())));
         _tournamentRepository
             .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(false));
@@ -165,7 +165,7 @@ public class ChallengeServiceTests
             .Returns(Task.FromResult(challenge));
         _tournamentRepository
             .Setup(tourRepo => tourRepo.GetTournamentByChallengeAsync(It.IsAny<long>()))
-            .Returns(Task.FromResult(new Tournament()));
+            .Returns(Task.FromResult(new Tournament("tournament",2,new User())));
         _tournamentRepository
             .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(true));
@@ -188,7 +188,7 @@ public class ChallengeServiceTests
             .Returns(Task.FromResult(challenge));
         _tournamentRepository
             .Setup(tourRepo => tourRepo.GetTournamentByChallengeAsync(It.IsAny<long>()))
-            .Returns(Task.FromResult(new Tournament()));
+            .Returns(Task.FromResult(new Tournament("tournament",2,new User())));
         _tournamentRepository
             .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(true));
@@ -216,7 +216,7 @@ public class ChallengeServiceTests
             .Returns(Task.FromResult(challenge));
         _tournamentRepository
             .Setup(tourRepo => tourRepo.GetTournamentByChallengeAsync(It.IsAny<long>()))
-            .Returns(Task.FromResult(new Tournament()));
+            .Returns(Task.FromResult(new Tournament("tournament",2,new User())));
         _tournamentRepository
             .Setup(tourRepo => tourRepo.IsUserSubscribedAsync(It.IsAny<long>(), It.IsAny<long>()))
             .Returns(Task.FromResult(true));

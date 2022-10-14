@@ -26,13 +26,8 @@ public class TournamentService : ITournamentService
             throw new BadRequestException("Tournament name exists.");
         
         var currentUser = await _userRepository.GetByIdAsync(userId);
-        
-        return await _tournamentRepository.InsertAsync(new Tournament()
-        {
-            Name = tournamentName,
-            MaxParticipants = maxParticipants,
-            Admin = currentUser
-        });
+
+        return await _tournamentRepository.InsertAsync(new Tournament(tournamentName, maxParticipants, currentUser));
     }
 
     public async Task<IEnumerable<TournamentInfo>> GetTournamentsInfo(TournamentFilters filters)
