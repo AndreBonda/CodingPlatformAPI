@@ -1,4 +1,4 @@
-namespace CodingPlatform.Domain.Entities;
+namespace CodingPlatform.Domain;
 
 public class UserTournamentParticipations : BaseEntity
 {

@@ -1,4 +1,4 @@
-using CodingPlatform.Domain.Entities;
+using CodingPlatform.Domain;
 
 namespace CodingPlatform.AppCore.Interfaces.Repositories;
 

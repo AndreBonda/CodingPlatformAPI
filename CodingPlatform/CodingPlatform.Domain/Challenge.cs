@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace CodingPlatform.Domain.Entities;
+namespace CodingPlatform.Domain;
 
 public class Challenge : BaseEntity
 {
@@ -10,19 +10,21 @@ public class Challenge : BaseEntity
 
     [Required]
     public string Title { get; private set; }
+
     [Required]
     public string Description { get; private set; }
+
     [Required]
     public DateTime EndDate { get; private set; }
-    public ICollection<Tip> Tips { get; private set; }
-    // public ICollection<Submission> Submissions { get; private set; }
+
+    private List<Tip> _tips;
     public Tournament Tournament { get; private set; }
 
     private Challenge()
     {
     }
 
-    public Challenge(string title, string description, int durationInHours, Tournament tournament, IEnumerable<string> tips )
+    public Challenge(string title, string description, int durationInHours, Tournament tournament, IEnumerable<string> tips = null)
     {
         if (string.IsNullOrEmpty(title)) throw new ArgumentNullException(nameof(title));
         if (string.IsNullOrEmpty(description)) throw new ArgumentNullException(nameof(description));
@@ -30,13 +32,27 @@ public class Challenge : BaseEntity
             throw new ArgumentException(nameof(durationInHours));
 
         if (tournament == null) throw new ArgumentNullException(nameof(tournament));
-        
+
         Title = title;
         Description = description;
         var now = DateTime.UtcNow;
         DateCreated = now;
         EndDate = now.AddHours(durationInHours);
-        
-        //TODO: tips setup
+        SetTips(tips);   
     }
+
+    public void SetTips(IEnumerable<string> tips)
+    {
+        _tips = new List<Tip>();
+        if (tips == null || tips.Count() == 0) return;
+
+        int count = 1;
+        foreach(string tipDesc in tips)
+        {
+            _tips.Add(new Tip(tipDesc, (byte)count));
+            count++;
+        }
+    }
+
+    public IEnumerable<Tip> Tips => _tips.AsReadOnly();
 }

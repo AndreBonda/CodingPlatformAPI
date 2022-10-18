@@ -27,7 +27,6 @@ public class ChallengeService : IChallengeService
     public async Task<Challenge> CreateChallenge(long tournamentId, string title, string description,
         int hours, long userId, IEnumerable<string> tips = null)
     {
-        var now = DateTime.UtcNow;
         var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
 
         if (tournament == null) throw new NotFoundException("Tournament does not exist");
@@ -36,30 +35,18 @@ public class ChallengeService : IChallengeService
         if (userId != adminUser.Id)
             throw new ForbiddenException("User is not authorized to create a challenge for this tournament");
 
-        if (await _challengeRepository.GetActiveChallengeByTournament(tournamentId, now) != null)
+        if (await _challengeRepository.GetActiveChallengeByTournament(tournamentId, DateTime.UtcNow) != null)
             throw new BadRequestException($@"There is a challenge in progress");
 
-        var newChallenge = new Challenge(title, description, hours, tournament);
-
-        if (tips != null)
-            for (byte i = 0; i < tips.Count(); i++)
-                newChallenge.Tips.Add(new Tip()
-                {
-                    Description = tips.ElementAt(i),
-                    Order = (byte) (i + 1),
-                    DateCreated = now
-                });
-
+        var newChallenge = new Challenge(title, description, hours, tournament, tips);
         tournament.Challenges.Add(newChallenge);
-        await _tournamentRepository.UpdateAsync(tournament);
 
+        await _tournamentRepository.UpdateAsync(tournament);
+        
         return newChallenge;
     }
 
-    public async Task<IEnumerable<Challenge>> GetChallenges()
-    {
-        return await _challengeRepository.GetChallengesAsync();
-    }
+    public async Task<IEnumerable<Challenge>> GetChallenges() => await _challengeRepository.GetChallengesAsync();
 
     public async Task<Submission> StartChallenge(long challengeId, long userId)
     {
