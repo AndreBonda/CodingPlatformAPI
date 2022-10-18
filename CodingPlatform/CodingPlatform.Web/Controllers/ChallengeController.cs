@@ -19,23 +19,7 @@ public class ChallengeController : CustomControllerBase
         _challengeService = challengeService;
     }
     
-    [HttpGet("challenges")]
-    public async Task<IActionResult> GetChallenges()
-    {
-        var userInProgressChallenges = await _challengeService.GetChallenges();
-        
-        return Ok(userInProgressChallenges.Select(c => new InfoInProgressChallengeDto
-        {
-            ChallengeId = c.Id,
-            ChallengeName = c.Title,
-            DateStart = c.DateCreated,
-            DateEnd = c.EndDate,
-            TournamentName = c.Tournament.Name,
-            Admin = c.Tournament.Admin.UserName
-        }));
-    }
-
-    [HttpPost("challenge_admin")]
+    [HttpPost("challenge")]
     public async Task<IActionResult> CreateChallenge(CreateChallengeDto param)
     {
         var challenge = await _challengeService.CreateChallenge(param.TournamentId, param.Title, param.Description,
@@ -51,7 +35,23 @@ public class ChallengeController : CustomControllerBase
             Tips = challenge.Tips?.Select(t => t.Description)
         });
     }
-
+    
+    [HttpGet("challenges")]
+    public async Task<IActionResult> GetChallenges()
+    {
+        var userInProgressChallenges = await _challengeService.GetChallenges();
+        
+        return Ok(userInProgressChallenges.Select(c => new InfoInProgressChallengeDto
+        {
+            ChallengeId = c.Id,
+            ChallengeName = c.Title,
+            DateStart = c.DateCreated,
+            DateEnd = c.EndDate,
+            TournamentName = c.Tournament.Name,
+            Admin = c.Tournament.Admin.UserName
+        }));
+    }
+    
     [HttpGet("submissions_admin/{challengeId}")]
     public async Task<IActionResult> GetAdminSubmissions(long challengeId)
     {

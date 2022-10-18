@@ -12,6 +12,11 @@ public class Tournament : BaseEntity
     public User Admin { get; private set; }
     public ICollection<Challenge> Challenges { get; private set; }
 
+    private Tournament()
+    {
+        Challenges = new List<Challenge>();
+    }
+
     public Tournament(string name, int maxParticipants, User admin, ICollection<Challenge> challenges = null)
     {
         if (string.IsNullOrEmpty(name)) throw new ArgumentException(nameof(name));
@@ -21,5 +26,11 @@ public class Tournament : BaseEntity
         MaxParticipants = maxParticipants;
         Admin = admin;
         Challenges = challenges ?? new List<Challenge>();
+    }
+
+    public void AddChallenge(Challenge newChallenge)
+    {
+        if (newChallenge == null) throw new ArgumentNullException(nameof(newChallenge));
+        Challenges.Add(newChallenge);
     }
 }

@@ -15,5 +15,4 @@ public class User : BaseEntity
     
     public ICollection<Tournament> TournamentsAdmin { get; set; }
     public ICollection<UserTournamentParticipations> UserTournamentParticipations { get; set; }
-    public ICollection<Submission> Submissions { get; set; }
 }

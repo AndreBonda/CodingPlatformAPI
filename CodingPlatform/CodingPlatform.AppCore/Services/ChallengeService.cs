@@ -39,13 +39,7 @@ public class ChallengeService : IChallengeService
         if (await _challengeRepository.GetActiveChallengeByTournament(tournamentId, now) != null)
             throw new BadRequestException($@"There is a challenge in progress");
 
-        var newChallenge = new Challenge()
-        {
-            Title = title,
-            Description = description,
-            EndDate = DateTime.UtcNow.AddHours(hours),
-            DateCreated = now,
-        };
+        var newChallenge = new Challenge(title, description, hours, tournament);
 
         if (tips != null)
             for (byte i = 0; i < tips.Count(); i++)
