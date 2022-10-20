@@ -9,6 +9,6 @@ public interface IRepositoryRefactor<TEntity>
     Task<bool> ExistAsync(long id);
     Task<TEntity> GetByIdAsync(long id);
     Task<TEntity> InsertAsync(TEntity entity);
-    Task<TEntity> DeleteAsync(long id);
+    Task DeleteAsync(long id);
     Task<TEntity> UpdateAsync(TEntity entity);
 }

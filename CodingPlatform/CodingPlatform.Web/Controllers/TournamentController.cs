@@ -44,15 +44,18 @@ public class TournamentController : CustomControllerBase
     [HttpPost("tournament")]
     public async Task<IActionResult> CreateTournament(CreateTournamentDto param)
     {
-        var result = await _tournamentService.Create(param.TournamentName, param.MaxParticipants,
+        var tournament = await _tournamentService.Create(param.TournamentName, param.MaxParticipants,
             GetCurrentUserId());
 
         return Created(nameof(CreateTournament), new TournamentDto()
         {
-            Id = result.Id,
-            Name = result.Name,
-            MaxParticipants = result.MaxParticipants,
-            DateCreated = result.DateCreated
+            Id = tournament.Id,
+            Name = tournament.Name,
+            DateCreated = tournament.DateCreated,
+            MaxParticipants = tournament.MaxParticipants,
+            UsernameAdmin = tournament.Admin.Username,
+            SubscriberNumber = tournament.SubscribedNumber,
+            AvailableSeats = tournament.AvailableSeats
         });
     }
 
