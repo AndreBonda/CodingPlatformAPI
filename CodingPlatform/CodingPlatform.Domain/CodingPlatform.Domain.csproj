@@ -7,9 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <None Remove="Entities\" />
+      <None Remove="Interfaces\" />
+      <None Remove="Factories\" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Entities\" />
+      <Folder Include="Interfaces\" />
+      <Folder Include="Factories\" />
     </ItemGroup>
 </Project>

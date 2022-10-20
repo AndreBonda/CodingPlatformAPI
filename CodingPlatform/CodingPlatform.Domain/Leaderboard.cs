@@ -3,17 +3,11 @@ namespace CodingPlatform.Domain
 {
     public class Leaderboard
     {
-        public class Placement
-        {
-            public string Username { get; private set; }
-            public int TotalChallenges { get; private set; }
-            public decimal TotalPoints { get; private set; }
-            public decimal AveragePoints { get; private set; }
-        }
+        public enum Sorting { TOTAL_PTS, AVERAGE_PTS }
 
         private readonly IEnumerable<Placement> _placements;
 
-        private Leaderboard(IEnumerable<Placement> placements)
+        public Leaderboard(IEnumerable<Placement> placements)
         {
             _placements = placements ?? new List<Placement>();
         }
@@ -45,6 +39,14 @@ namespace CodingPlatform.Domain
 
             return NumeratedPlacements(sortedPlacements.ToArray());
         }
+
+        public Dictionary<int, Placement> GetSortedPlacements(Sorting sortingType, bool sortingAsc = false)
+            => sortingType switch
+            {
+                Sorting.TOTAL_PTS => GetPlacementsSortedByTotalPoints(sortingAsc),
+                Sorting.AVERAGE_PTS => GetPlacementsSortedByAveragePoints(sortingAsc),
+                _ => throw new ArgumentException(nameof(sortingType))
+            };
 
         private Dictionary<int, Placement> NumeratedPlacements(Placement[] placements)
         {

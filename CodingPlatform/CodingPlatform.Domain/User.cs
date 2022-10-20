@@ -5,14 +5,21 @@ namespace CodingPlatform.Domain;
 public class User : BaseEntity
 {
     [Required]
-    public string Email { get; set; }
+    public string Email { get; private set; }
     [Required]
-    public string UserName { get; set; }
+    public string Username { get; private set; }
     [Required]
-    public byte[] PasswordSalt { get; set; }
+    public byte[] PasswordSalt { get; private set; }
     [Required]
-    public byte[] PasswordHash { get; set; }
-    
-    public ICollection<Tournament> TournamentsAdmin { get; set; }
-    public ICollection<UserTournamentParticipations> UserTournamentParticipations { get; set; }
+    public byte[] PasswordHash { get; private set; }
+
+    private User() { }
+
+    public User(string email, string username, byte[] passwordSalt, byte[] passwordHash)
+    {
+        Email = email;
+        Username = username;
+        PasswordSalt = passwordSalt;
+        PasswordHash = passwordHash;
+    }
 }

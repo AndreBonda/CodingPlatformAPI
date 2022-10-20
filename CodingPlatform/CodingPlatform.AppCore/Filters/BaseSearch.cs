@@ -1,10 +1,10 @@
 namespace CodingPlatform.AppCore.Filters;
 
-public abstract class BaseFilters
+public abstract class BaseSearch
 {
     public int Take { get; }
 
-    protected BaseFilters(int? take = null)
+    protected BaseSearch(int? take = null)
     {
         Take = take ?? 50;
     }

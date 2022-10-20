@@ -1,4 +1,3 @@
-using CodingPlatform.Domain.Entities;
 using CodingPlatform.Domain.Exception;
 
 namespace CodingPlatform.Domain;
@@ -19,7 +18,7 @@ public class SubmissionStatus
     public int UsedTips { get; private set; }
     public string Content { get; private set; }
     public decimal Score { get; private set; }
-    
+
     //TODO: refactor and pass one parameter with required value
     public SubmissionStatus(Submission submission, Challenge challenge, IEnumerable<Tip> challengeTips)
     {
@@ -37,7 +36,7 @@ public class SubmissionStatus
 
     public int ChallengeTipAvailableNumber() => ChallengeTips.Count;
     public int RemainingTipsNumber() => ChallengeTips.Count - UsedTips;
-    public bool IsRemainingTip()  => RemainingTipsNumber() > 0;
+    public bool IsRemainingTip() => RemainingTipsNumber() > 0;
     public bool IsSubmissionDelivered() => SubmitDate.HasValue;
     public bool IsChallengeOver() => DateTime.UtcNow > EndDate;
 
@@ -61,7 +60,7 @@ public class SubmissionStatus
 
     public void SetScore(int startingScore)
     {
-        if(!IsSubmissionDelivered()) 
+        if (!IsSubmissionDelivered())
             throw new BadRequestException("Submission is not delivered");
 
         if (startingScore < _MIN_STARTING_SCORE || startingScore > _MAX_STARTING_SCORE)

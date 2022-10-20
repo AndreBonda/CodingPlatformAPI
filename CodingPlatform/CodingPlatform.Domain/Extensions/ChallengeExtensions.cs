@@ -1,5 +1,3 @@
-using CodingPlatform.Domain.Entities;
-
 namespace CodingPlatform.Domain.Extensions;
 
 public static class ChallengeExtensions

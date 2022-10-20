@@ -1,5 +1,5 @@
 using CodingPlatform.AppCore.Interfaces.Repositories;
-using CodingPlatform.Domain.Entities;
+using CodingPlatform.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodingPlatform.Infrastructure.Repositories;
@@ -12,25 +12,14 @@ public class SubmissionRepository : BaseRepository<Submission>, ISubmissionRepos
 
     public async Task<Submission> GetSubmissionByUserAndChallengeAsync(long userId, long challengeId)
     {
-        return await dbCtx.Submissions.FirstOrDefaultAsync(
+        return await _dbCtx.Submissions.FirstOrDefaultAsync(
             s => s.User.Id == userId && s.Challenge.Id == challengeId);
     }
 
     public async Task<IEnumerable<Submission>> GetSubmissionsByChallengeAsync(long challengeId)
     {
-        return await dbCtx.Submissions
+        return await _dbCtx.Submissions
             .Where(s => s.Challenge.Id == challengeId)
             .ToListAsync();
-    }
-
-    public async Task<IEnumerable<Submission>> GetSubmissionByTournament(long tournamentId)
-    {
-        var tournament = await dbCtx.Tournaments
-            .Include(t => t.Challenges)
-            .ThenInclude(c => c.Submissions)
-            .ThenInclude(s => s.User)
-            .FirstAsync(t => t.Id == tournamentId);
-
-        return tournament.Challenges.SelectMany(c => c.Submissions);
     }
 }

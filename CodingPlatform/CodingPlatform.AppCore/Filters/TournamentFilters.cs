@@ -1,10 +1,10 @@
 namespace CodingPlatform.AppCore.Filters;
 
-public class TournamentFilters : BaseFilters
+public class TournamentSearch : BaseSearch
 {
     public string TournamentName { get; set; }
 
-    public TournamentFilters(int? take = null) : base(take)
+    public TournamentSearch(int? take = null) : base(take)
     {
     }
 }

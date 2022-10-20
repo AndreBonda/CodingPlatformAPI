@@ -8,11 +8,7 @@ public class TournamentDto
     public string Name { get; set; }
     public int MaxParticipants { get; set; }
     public DateTime DateCreated { get; set; }
-}
-
-public class TournamentInfoDto : TournamentDto
-{
-    public string UserAdmin { get; set; }
+    public string UsernameAdmin { get; set; }
     public int SubscriberNumber { get; set; }
     public int AvailableSeats { get; set; }
 }

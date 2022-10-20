@@ -1,4 +1,3 @@
-using CodingPlatform.Domain.Entities;
 using CodingPlatform.Domain.Exception;
 using NUnit.Framework;
 
@@ -267,25 +266,25 @@ public class SubmissionStatusTests
         var subStatus = new SubmissionStatus(_submission, _challenge, _tips);
 
         var usedTips = subStatus.GetUsedTips();
-        
+
         Assert.That(usedTips.Count(), Is.EqualTo(0));
     }
-    
+
     [Test]
     public void GetUsedTips_TipsUsed_ReturnOnlyTipsUsed()
     {
-        _tips.Add(new Tip(){Description = "Tip1", Order = 1});
-        _tips.Add(new Tip(){Description = "Tip2", Order = 2});
-        _tips.Add(new Tip(){Description = "Tip3", Order = 3});
+        _tips.Add(new Tip() { Description = "Tip1", Order = 1 });
+        _tips.Add(new Tip() { Description = "Tip2", Order = 2 });
+        _tips.Add(new Tip() { Description = "Tip3", Order = 3 });
         _submission.TipsNumber = 2;
         var subStatus = new SubmissionStatus(_submission, _challenge, _tips);
 
         var usedTips = subStatus.GetUsedTips();
-        
+
         Assert.That(usedTips.Count(), Is.EqualTo(2));
         Assert.That(usedTips.ElementAt(0), Is.EqualTo("Tip1"));
         Assert.That(usedTips.ElementAt(1), Is.EqualTo("Tip2"));
         Assert.That(usedTips, Does.Not.Contain("Tip3"));
     }
-    
+
 }

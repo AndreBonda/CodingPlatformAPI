@@ -1,7 +1,7 @@
 using System.Linq;
 using CodingPlatform.AppCore.Filters;
 using CodingPlatform.AppCore.Interfaces.Repositories;
-using CodingPlatform.Domain.Entities;
+using CodingPlatform.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodingPlatform.Infrastructure.Repositories;
@@ -9,16 +9,16 @@ namespace CodingPlatform.Infrastructure.Repositories;
 public abstract class BaseRepository<TEntity> : IRepository<TEntity>
     where TEntity : BaseEntity
 {
-    protected readonly AppDbContext dbCtx;
-    
+    protected readonly AppDbContext _dbCtx;
+
     protected BaseRepository(AppDbContext dbCtx)
     {
-        this.dbCtx = dbCtx;
+        _dbCtx = dbCtx;
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync(BaseFilters filters)
+    public async Task<IEnumerable<TEntity>> GetAllAsync(BaseSearch filters)
     {
-        var results = dbCtx.Set<TEntity>()
+        var results = _dbCtx.Set<TEntity>()
             .Take(filters.Take);
 
         return await results.ToListAsync();
@@ -26,22 +26,21 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
 
     public async Task<TEntity> GetByIdAsync(long id)
     {
-        return await dbCtx.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
+        return await _dbCtx.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<TEntity> InsertAsync(TEntity entity)
     {
-        entity.DateCreated = DateTime.UtcNow;
-        var inserted = await dbCtx.Set<TEntity>().AddAsync(entity);
-        await dbCtx.SaveChangesAsync();
+        var inserted = await _dbCtx.Set<TEntity>().AddAsync(entity);
+        await _dbCtx.SaveChangesAsync();
         return inserted.Entity;
     }
 
     public async Task<TEntity> DeleteAsync(long id)
     {
         var entity = await GetByIdAsync(id);
-        dbCtx.Set<TEntity>().Remove(entity);
-        await dbCtx.SaveChangesAsync();
+        _dbCtx.Set<TEntity>().Remove(entity);
+        await _dbCtx.SaveChangesAsync();
         return entity;
     }
 
@@ -50,13 +49,13 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
         var dbEntity = await GetByIdAsync(entity.Id);
         if (dbEntity == null)
             return null;
-        
-        dbCtx.Entry(dbEntity).CurrentValues.SetValues(entity);
-        await dbCtx.SaveChangesAsync();
+
+        _dbCtx.Entry(dbEntity).CurrentValues.SetValues(entity);
+        await _dbCtx.SaveChangesAsync();
         return dbEntity;
     }
 
-    protected IQueryable<TEntity> SetPagination(IQueryable<TEntity> query, BaseFilters filters)
+    protected IQueryable<TEntity> SetPagination(IQueryable<TEntity> query, BaseSearch filters)
     {
         query = query
             .Take(filters.Take);

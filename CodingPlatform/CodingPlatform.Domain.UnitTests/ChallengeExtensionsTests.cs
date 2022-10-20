@@ -1,4 +1,3 @@
-using CodingPlatform.Domain.Entities;
 using CodingPlatform.Domain.Extensions;
 using NUnit.Framework;
 
@@ -15,10 +14,10 @@ public class ChallengeExtensionsTests
             DateCreated = DateTime.UtcNow.AddDays(-2),
             EndDate = DateTime.UtcNow.AddDays(-1)
         };
-        
+
         Assert.That(challenge.IsInProgress(), Is.EqualTo(false));
     }
-    
+
     [Test]
     public void IsInProgress_ChallengeIsInProgress_ReturnTrue()
     {
@@ -27,7 +26,7 @@ public class ChallengeExtensionsTests
             DateCreated = DateTime.UtcNow.AddDays(-1),
             EndDate = DateTime.UtcNow.AddDays(1)
         };
-        
+
         Assert.That(challenge.IsInProgress(), Is.EqualTo(true));
     }
 }

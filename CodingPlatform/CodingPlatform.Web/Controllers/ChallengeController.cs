@@ -12,19 +12,19 @@ namespace CodingPlatform.Web.Controllers;
 public class ChallengeController : CustomControllerBase
 {
     private readonly IChallengeService _challengeService;
-    
-    public ChallengeController(IHttpContextAccessor httpContextAccessor, IChallengeService challengeService) 
+
+    public ChallengeController(IHttpContextAccessor httpContextAccessor, IChallengeService challengeService)
         : base(httpContextAccessor)
     {
         _challengeService = challengeService;
     }
-    
+
     [HttpPost("challenge")]
     public async Task<IActionResult> CreateChallenge(CreateChallengeDto param)
     {
         var challenge = await _challengeService.CreateChallenge(param.TournamentId, param.Title, param.Description,
             param.Hours, GetCurrentUserId(), param.Tips);
-        
+
         return Created(nameof(CreateChallenge), new ChallengeDto()
         {
             Id = challenge.Id,
@@ -35,12 +35,12 @@ public class ChallengeController : CustomControllerBase
             Tips = challenge.Tips?.Select(t => t.Description)
         });
     }
-    
+
     [HttpGet("challenges")]
     public async Task<IActionResult> GetChallenges()
     {
         var userInProgressChallenges = await _challengeService.GetChallenges();
-        
+
         return Ok(userInProgressChallenges.Select(c => new InfoInProgressChallengeDto
         {
             ChallengeId = c.Id,
@@ -48,14 +48,14 @@ public class ChallengeController : CustomControllerBase
             DateStart = c.DateCreated,
             DateEnd = c.EndDate,
             TournamentName = c.Tournament.Name,
-            Admin = c.Tournament.Admin.UserName
+            Admin = c.Tournament.Admin.Username
         }));
     }
-    
+
     [HttpGet("submissions_admin/{challengeId}")]
     public async Task<IActionResult> GetAdminSubmissions(long challengeId)
     {
-        var submissions = 
+        var submissions =
             await _challengeService.GetSubmissionsByChallenge(challengeId, GetCurrentUserId());
         return Ok(submissions.Select(s => new SubmissionDto
         {
@@ -68,10 +68,10 @@ public class ChallengeController : CustomControllerBase
     }
 
     [HttpPost("submission_admin_evaluate/{submissionId}")]
-    public async Task<IActionResult> EvaluateSubmission(long submissionId, [FromBody][Range(0,5)] int score)
+    public async Task<IActionResult> EvaluateSubmission(long submissionId, [FromBody][Range(0, 5)] int score)
     {
         var subStatus = await _challengeService.EvaluateSubmission(submissionId, score, GetCurrentUserId());
-       
+
         return Created(nameof(EvaluateSubmission), new SubmissionStatusDto
         {
             SubmissionId = subStatus.SubmissionId,
@@ -87,7 +87,7 @@ public class ChallengeController : CustomControllerBase
             RemainingTipsNumber = subStatus.RemainingTipsNumber()
         });
     }
-    
+
     [HttpPost("challenge_user_start/{challengeId}")]
     public async Task<IActionResult> StartUserChallenge(long challengeId)
     {
@@ -123,7 +123,7 @@ public class ChallengeController : CustomControllerBase
     public async Task<IActionResult> SubmissionUserTip(long submissionId)
     {
         var subStatus = await _challengeService.AddSubmissionTip(submissionId, GetCurrentUserId());
-        
+
         return Created(nameof(SubmissionUserTip), new SubmissionStatusDto
         {
             SubmissionId = subStatus.SubmissionId,
@@ -144,7 +144,7 @@ public class ChallengeController : CustomControllerBase
     public async Task<IActionResult> EndUserSubmission(long submissionId, [FromBody] string content)
     {
         var subStatus = await _challengeService.EndSubmission(submissionId, content, GetCurrentUserId());
-        
+
         return Created(nameof(SubmissionUserTip), new SubmissionStatusDto
         {
             SubmissionId = subStatus.SubmissionId,

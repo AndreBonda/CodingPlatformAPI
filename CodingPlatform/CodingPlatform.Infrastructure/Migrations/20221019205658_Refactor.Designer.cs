@@ -3,6 +3,7 @@ using System;
 using CodingPlatform.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CodingPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221019205658_Refactor")]
+    partial class Refactor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -92,32 +94,6 @@ namespace CodingPlatform.Infrastructure.Migrations
                     b.ToTable("Submissions");
                 });
 
-            modelBuilder.Entity("CodingPlatform.Domain.Subscription", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long?>("TournamentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TournamentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Subscriptions");
-                });
-
             modelBuilder.Entity("CodingPlatform.Domain.Tip", b =>
                 {
                     b.Property<long>("Id")
@@ -153,7 +129,7 @@ namespace CodingPlatform.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("AdminId")
+                    b.Property<long?>("AdminId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("DateCreated")
@@ -196,11 +172,16 @@ namespace CodingPlatform.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
+                    b.Property<long?>("TournamentId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TournamentId");
 
                     b.ToTable("Users");
                 });
@@ -233,19 +214,6 @@ namespace CodingPlatform.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CodingPlatform.Domain.Subscription", b =>
-                {
-                    b.HasOne("CodingPlatform.Domain.Tournament", null)
-                        .WithMany("SubscribedUser")
-                        .HasForeignKey("TournamentId");
-
-                    b.HasOne("CodingPlatform.Domain.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CodingPlatform.Domain.Tip", b =>
                 {
                     b.HasOne("CodingPlatform.Domain.Challenge", null)
@@ -257,11 +225,16 @@ namespace CodingPlatform.Infrastructure.Migrations
                 {
                     b.HasOne("CodingPlatform.Domain.User", "Admin")
                         .WithMany()
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AdminId");
 
                     b.Navigation("Admin");
+                });
+
+            modelBuilder.Entity("CodingPlatform.Domain.User", b =>
+                {
+                    b.HasOne("CodingPlatform.Domain.Tournament", null)
+                        .WithMany("SubscribedUser")
+                        .HasForeignKey("TournamentId");
                 });
 
             modelBuilder.Entity("CodingPlatform.Domain.Challenge", b =>

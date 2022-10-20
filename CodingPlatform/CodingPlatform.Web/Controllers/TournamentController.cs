@@ -12,8 +12,8 @@ namespace CodingPlatform.Web.Controllers;
 public class TournamentController : CustomControllerBase
 {
     private readonly ITournamentService _tournamentService;
-    
-    public TournamentController(IHttpContextAccessor httpCtxAccessor, ITournamentService tournamentService) 
+
+    public TournamentController(IHttpContextAccessor httpCtxAccessor, ITournamentService tournamentService)
         : base(httpCtxAccessor)
     {
         _tournamentService = tournamentService;
@@ -22,30 +22,31 @@ public class TournamentController : CustomControllerBase
     [HttpGet("tournaments")]
     public async Task<IActionResult> GetTournaments([FromQuery] SearchTournamentDto param)
     {
-        var tournamentInfos = await _tournamentService.GetTournamentsInfo(
-            new TournamentFilters(param.Take)
-            {
-                TournamentName = param.TournamentName
-            });
-        
-        return Ok(tournamentInfos.Select(info => new TournamentInfoDto()
+        var search = new TournamentSearch()
         {
-            Id = info.Id,
-            Name = info.Name,
-            DateCreated = info.DateDateCreated,
-            MaxParticipants = info.MaxParticipants,
-            UserAdmin = info.UserAdmin,
-            SubscriberNumber = info.SubscriberNumber,
-            AvailableSeats = info.GetAvailableSeats()
+            TournamentName = param.TournamentName
+        };
+
+        var tournaments = await _tournamentService.GetTournaments(search);
+
+        return Ok(tournaments.Select(t => new TournamentDto()
+        {
+            Id = t.Id,
+            Name = t.Name,
+            DateCreated = t.DateCreated,
+            MaxParticipants = t.MaxParticipants,
+            UsernameAdmin = t.Admin.Username,
+            SubscriberNumber = t.SubscribedNumber,
+            AvailableSeats = t.AvailableSeats
         }));
     }
 
     [HttpPost("tournament")]
     public async Task<IActionResult> CreateTournament(CreateTournamentDto param)
     {
-        var result = await _tournamentService.Create(param.TournamentName, param.MaxParticipants, 
+        var result = await _tournamentService.Create(param.TournamentName, param.MaxParticipants,
             GetCurrentUserId());
-        
+
         return Created(nameof(CreateTournament), new TournamentDto()
         {
             Id = result.Id,
@@ -54,29 +55,11 @@ public class TournamentController : CustomControllerBase
             DateCreated = result.DateCreated
         });
     }
-    
-    [HttpPost("tournament_subscription/{tournamentId}")]
-    public async Task<IActionResult> TournamentSubscription(long tournamentId)
+
+    [HttpPost("subscription/{tournamentId}")]
+    public async Task<IActionResult> Subscription(long tournamentId)
     {
-        var result = await _tournamentService.SubscribeUser(tournamentId, GetCurrentUserId());
-
-        return Created(nameof(TournamentSubscription), new
-        {
-            DateCreated = result.DateCreated
-        });
-    }
-
-    [HttpGet("tournament_leaderboard/{tournamentId}")]
-    public async Task<IActionResult> TournamentLeaderBoard(long tournamentId)
-    {
-        var positions = await _tournamentService.GetTournamentLeaderBoard(tournamentId);
-
-        return Ok(positions.Select(p => new LeaderBoardPositionDto()
-        {
-            Place = p.Place,
-            AveragePoints = p.AveragePoints,
-            TotalPoints = p.TotalPoints,
-            UserName = p.UserName
-        }));
+        await _tournamentService.SubscribeUserRefactor(tournamentId, GetCurrentUserId());
+        return Created(nameof(Subscription), "Subscription created");
     }
 }

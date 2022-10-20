@@ -27,7 +27,9 @@ public class Challenge : BaseEntity
     public Challenge(string title, string description, int durationInHours, Tournament tournament, IEnumerable<string> tips = null)
     {
         if (string.IsNullOrEmpty(title)) throw new ArgumentNullException(nameof(title));
+
         if (string.IsNullOrEmpty(description)) throw new ArgumentNullException(nameof(description));
+
         if (durationInHours < _MIN_CHALLENGE_DURATION || durationInHours > _MAX_CHALLENGE_DURATION)
             throw new ArgumentException(nameof(durationInHours));
 
@@ -35,10 +37,8 @@ public class Challenge : BaseEntity
 
         Title = title;
         Description = description;
-        var now = DateTime.UtcNow;
-        DateCreated = now;
-        EndDate = now.AddHours(durationInHours);
-        SetTips(tips);   
+        EndDate = DateCreated.AddHours(durationInHours);
+        SetTips(tips);
     }
 
     public void SetTips(IEnumerable<string> tips)
@@ -47,7 +47,7 @@ public class Challenge : BaseEntity
         if (tips == null || tips.Count() == 0) return;
 
         int count = 1;
-        foreach(string tipDesc in tips)
+        foreach (string tipDesc in tips)
         {
             _tips.Add(new Tip(tipDesc, (byte)count));
             count++;

@@ -1,6 +1,6 @@
 using CodingPlatform.AppCore.Filters;
 using CodingPlatform.AppCore.Interfaces.Repositories;
-using CodingPlatform.Domain.Entities;
+using CodingPlatform.Domain;
 
 namespace CodingPlatform.AppCore.Interfaces.Repositories;
 

@@ -2,7 +2,7 @@ using System.Security.Authentication;
 using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.AppCore.Services;
-using CodingPlatform.Domain.Entities;
+using CodingPlatform.Domain;
 using Moq;
 using NUnit.Framework;
 
@@ -43,7 +43,7 @@ public class UserServiceTests
 
         _userRepository.Verify(userRepo => userRepo.InsertAsync(user));
     }
-    
+
     [TestCase("", "password", new byte[0], new byte[0], "keygen", "email")]
     [TestCase(" ", "password", new byte[0], new byte[0], "keygen", "email")]
     [TestCase("email", "", new byte[0], new byte[0], "keygen", "password")]
