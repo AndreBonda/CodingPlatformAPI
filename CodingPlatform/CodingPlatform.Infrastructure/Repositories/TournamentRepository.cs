@@ -11,14 +11,12 @@ public class TournamentRepository : BaseRepositoryRefactor<Tournament>, ITournam
     {
     }
 
-    public override async Task<Tournament> GetByIdAsync(long id)
-    {
-        return await _dbCtx.Tournaments
+    public override async Task<Tournament> GetByIdAsync(long id) =>
+        await _dbCtx.Tournaments
             .Include(t => t.SubscribedUser)
             .ThenInclude(s => s.User)
             .Include(t => t.Admin)
             .FirstOrDefaultAsync(t => t.Id == id);
-    }
 
     public async Task<IEnumerable<Tournament>> GetFilteredAsync(TournamentSearch f = null)
     {
@@ -31,8 +29,6 @@ public class TournamentRepository : BaseRepositoryRefactor<Tournament>, ITournam
         if (!string.IsNullOrWhiteSpace(f.TournamentName))
             results = results.Where(t => t.Name.ToLower().Contains(f.TournamentName.ToLower()));
 
-        //results = SetPagination(results, f);
-
         return await results.ToListAsync();
     }
 
@@ -43,24 +39,6 @@ public class TournamentRepository : BaseRepositoryRefactor<Tournament>, ITournam
         return await _dbCtx.Set<Tournament>()
             .FirstOrDefaultAsync(t => t.Name.ToLower() == name.ToLower());
     }
-
-    //public async Task<bool> IsUserSubscribedAsync(long tournamentId, long userId)
-    //{
-    //    return await _dbCtx.Set<UserTournamentParticipations>()
-    //        .AnyAsync(utp => utp.Tournament.Id == tournamentId && utp.User.Id == userId);
-    //}
-
-    //public async Task<UserTournamentParticipations> AddSubscriptionAsync(Tournament tournament, User user)
-    //{
-    //    var inserted = await _dbCtx.Set<UserTournamentParticipations>()
-    //        .AddAsync(new UserTournamentParticipations()
-    //        {
-    //            Tournament = tournament,
-    //            User = user
-    //        });
-    //    await _dbCtx.SaveChangesAsync();
-    //    return inserted.Entity;
-    //}
 
     public async Task<int> GetSubscriberNumberAsync(long tournamentId)
     {

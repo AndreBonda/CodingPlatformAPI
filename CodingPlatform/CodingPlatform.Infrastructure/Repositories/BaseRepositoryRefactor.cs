@@ -16,24 +16,24 @@ public abstract class BaseRepositoryRefactor<TEntity> : IRepositoryRefactor<TEnt
         _dbCtx = dbCtx;
     }
 
-    public virtual async Task<TEntity> GetByIdAsync(long id) => await _dbCtx.Set<TEntity>().FirstOrDefaultAsync(e => e.Id == id);
+    public virtual async Task<TEntity> GetByIdAsync(long id) =>
+        await _dbCtx.Set<TEntity>().FirstOrDefaultAsync(e => e.Id == id);
 
-    public async Task<TEntity> DeleteAsync(long id)
+    public async Task DeleteAsync(long id)
     {
         var entity = await GetByIdAsync(id);
-        if (entity == null) return null;
+        if (entity == null) return;
         _dbCtx.Set<TEntity>().Remove(entity);
         await SaveAsync();
-        return entity;
     }
 
-    public async Task<bool> ExistAsync(long id) => await GetByIdAsync(id) != null;
+    public async Task<bool> ExistAsync(long id) => await _dbCtx.Set<TEntity>().AnyAsync(e => e.Id == id);
 
     public async Task<TEntity> InsertAsync(TEntity entity)
     {
         var inserted = await _dbCtx.Set<TEntity>().AddAsync(entity);
         await SaveAsync();
-        return inserted.Entity;
+        return await GetByIdAsync(inserted.Entity.Id);
     }
 
     public async Task<TEntity> UpdateAsync(TEntity entity)
@@ -42,7 +42,7 @@ public abstract class BaseRepositoryRefactor<TEntity> : IRepositoryRefactor<TEnt
         if (dbEntity == null) return null;
         _dbCtx.Entry(dbEntity).CurrentValues.SetValues(entity);
         await SaveAsync();
-        return dbEntity;
+        return await GetByIdAsync(entity.Id);
     }
 
     protected async Task SaveAsync() => await _dbCtx.SaveChangesAsync();
