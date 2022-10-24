@@ -6,14 +6,12 @@ namespace CodingPlatform.AppCore.Interfaces.Repositories;
 
 public interface IUserRepository : IRepository<User>
 {
-    Task<User> GetUserByEmail(string email);
-    Task<User> GetUserByUsername(string username);
+    Task<User> GetUserByEmailAsync(string email);
+    Task<bool> ExistUserByEmailAsync(string email);
+    Task<User> GetUserByUsernameAsync(string username);
+    Task<bool> ExistUserByUsernameAsync(string username);
+
     Task<User> GetUserBySubmission(long submissionId);
-    /// <summary>
-    /// Return the admin of a challenge.
-    /// </summary>
-    /// <param name="challengeId"></param>
-    /// <returns></returns>
     Task<User> GetAdminByChallenge(long challengeId);
     Task<User> GetTournamentAdminAsync(long tournamentId);
     Task<bool> IsUserAuthorizedToEvaluateSubmission(long userId, long submissionId);

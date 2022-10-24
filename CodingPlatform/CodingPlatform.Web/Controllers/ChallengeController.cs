@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using CodingPlatform.AppCore.Commands;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Web.DTO;
 using Microsoft.AspNetCore.Authorization;
@@ -22,8 +23,16 @@ public class ChallengeController : CustomControllerBase
     [HttpPost("challenge")]
     public async Task<IActionResult> CreateChallenge(CreateChallengeDto param)
     {
-        var challenge = await _challengeService.CreateChallenge(param.TournamentId, param.Title, param.Description,
-            param.Hours, GetCurrentUserId(), param.Tips);
+
+        var challenge = await _challengeService.CreateChallenge(new CreateChallengeCmd()
+        {
+            Description = param.Description,
+            Hours = param.Hours,
+            Tips = param.Tips,
+            Title = param.Title,
+            TournamentId = param.TournamentId,
+            UserId = GetCurrentUserId()
+        });
 
         return Created(nameof(CreateChallenge), new ChallengeDto()
         {
@@ -36,19 +45,18 @@ public class ChallengeController : CustomControllerBase
         });
     }
 
-    [HttpGet("challenges")]
-    public async Task<IActionResult> GetChallenges()
+    [HttpGet("challenges/user")]
+    public async Task<IActionResult> GetChallenges([FromQuery] bool onlyActive)
     {
-        var userInProgressChallenges = await _challengeService.GetChallenges();
+        var userInProgressChallenges = await _challengeService.GetChallengesByUser(GetCurrentUserId(), onlyActive);
 
-        return Ok(userInProgressChallenges.Select(c => new InfoInProgressChallengeDto
+        return Ok(userInProgressChallenges.Select(c => new UserChallenges
         {
-            ChallengeId = c.Id,
-            ChallengeName = c.Title,
-            DateStart = c.DateCreated,
-            DateEnd = c.EndDate,
-            TournamentName = c.Tournament.Name,
-            Admin = c.Tournament.Admin.Username
+            Id = c.Id,
+            Title = c.Title,
+            StartDate = c.DateCreated,
+            EndDate = c.EndDate,
+            Description = c.Description
         }));
     }
 

@@ -1,13 +1,16 @@
+using CodingPlatform.AppCore.Commands;
 using CodingPlatform.Domain;
 
 namespace CodingPlatform.AppCore.Interfaces.Services;
 
 public interface IChallengeService
 {
-    Task<Challenge> CreateChallenge(long tournamentId, string title, string description,
-        int hours, long userId, IEnumerable<string> tips = null);
+    //Task<Challenge> CreateChallenge(long tournamentId, string title, string description,
+    //    int hours, long userId, IEnumerable<string> tips = null);
 
-    Task<IEnumerable<Challenge>> GetChallenges();
+    Task<Challenge> CreateChallenge(CreateChallengeCmd cmd);
+    Task<IEnumerable<Challenge>> GetChallengesByUser(long userId, bool onlyActive);
+
     Task<Submission> StartChallenge(long challengeId, long userId);
     Task<SubmissionStatus> GetSubmissionStatus(long submissionId, long userId);
     Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId);

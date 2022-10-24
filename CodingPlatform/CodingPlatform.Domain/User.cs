@@ -5,21 +5,32 @@ namespace CodingPlatform.Domain;
 public class User : BaseEntity
 {
     [Required]
-    public string Email { get; private set; }
+    public string Email { get; protected set; }
     [Required]
-    public string Username { get; private set; }
+    public string Username { get; protected set; }
     [Required]
-    public byte[] PasswordSalt { get; private set; }
+    public byte[] PasswordSalt { get; protected set; }
     [Required]
-    public byte[] PasswordHash { get; private set; }
+    public byte[] PasswordHash { get; protected set; }
 
     private User() { }
 
-    public User(string email, string username, byte[] passwordSalt, byte[] passwordHash)
+    public static User CreateNew(string email, string username, byte[] passwordSalt, byte[] passwordHash)
     {
-        Email = email;
-        Username = username;
-        PasswordSalt = passwordSalt;
-        PasswordHash = passwordHash;
+        if (string.IsNullOrEmpty(email)) throw new ArgumentNullException(nameof(email));
+
+        if (string.IsNullOrEmpty(username)) throw new ArgumentNullException(nameof(username));
+
+        if (passwordSalt == null) throw new ArgumentNullException(nameof(passwordSalt));
+
+        if (passwordHash == null) throw new ArgumentNullException(nameof(passwordHash));
+
+        return new User()
+        {
+            Email = email,
+            Username = username,
+            PasswordHash = passwordHash,
+            PasswordSalt = passwordSalt
+        };
     }
 }

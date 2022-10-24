@@ -1,3 +1,4 @@
+using CodingPlatform.AppCore.Commands;
 using CodingPlatform.AppCore.Filters;
 using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
@@ -9,40 +10,38 @@ namespace CodingPlatform.AppCore.Services;
 
 public class ChallengeService : IChallengeService
 {
-    private readonly ITournamentRepository _tournamentRepository;
-    private readonly IChallengeRepository _challengeRepository;
+    private readonly ITournamentRepository _tournamentRepo;
+    private readonly IChallengeRepository _challengeRepo;
     private readonly ISubmissionRepository _submissionRepository;
     private readonly IUserRepository _userRepository;
 
     public ChallengeService(ITournamentRepository tournamentRepository, IChallengeRepository challengeRepository,
         ISubmissionRepository submissionRepository, IUserRepository userRepository)
     {
-        _tournamentRepository = tournamentRepository;
-        _challengeRepository = challengeRepository;
+        _tournamentRepo = tournamentRepository;
+        _challengeRepo = challengeRepository;
         _submissionRepository = submissionRepository;
         _userRepository = userRepository;
     }
 
-    public async Task<Challenge> CreateChallenge(long tournamentId, string title, string description,
-        int hours, long userId, IEnumerable<string> tips = null)
+    public async Task<Challenge> CreateChallenge(CreateChallengeCmd cmd)
     {
-        var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
-        if (tournament == null) throw new NotFoundException(nameof(tournamentId));
+        var tournament = await _tournamentRepo.GetByIdAsync(cmd.TournamentId);
+        if (tournament == null) throw new NotFoundException(nameof(cmd.TournamentId));
 
-        var adminUser = await _userRepository.GetTournamentAdminAsync(tournamentId);
-        if (userId != adminUser.Id)
-            throw new ForbiddenException("User is not authorized to create a challenge for this tournament");
+        var user = await _userRepository.GetByIdAsync(cmd.UserId);
+        var challenge = Challenge.CreateNew(cmd.Title,
+                cmd.Description,
+                cmd.Hours,
+                cmd.Tips);
+        tournament.AddChallenge(challenge, user);
+        await _tournamentRepo.UpdateAsync(tournament);
 
-        if (await _challengeRepository.GetActiveChallengeByTournament(tournamentId, DateTime.UtcNow) != null)
-            throw new BadRequestException($@"There is a challenge in progress");
-
-        var newChallenge = new Challenge(title, description, hours, tournament, tips);
-        await _challengeRepository.UpdateAsync(newChallenge);
-
-        return newChallenge;
+        return challenge;
     }
 
-    public async Task<IEnumerable<Challenge>> GetChallenges() => await _challengeRepository.GetChallengesAsync();
+    public async Task<IEnumerable<Challenge>> GetChallengesByUser(long userId, bool onlyActive) =>
+        await _challengeRepo.GetChallengesByUser(userId, onlyActive);
 
     public async Task<Submission> StartChallenge(long challengeId, long userId)
     {
@@ -84,7 +83,7 @@ public class ChallengeService : IChallengeService
         var user = await _userRepository.GetUserBySubmission(submissionId);
         if (userId != user.Id) throw new ForbiddenException("User is not authorized to this submission");
 
-        var challenge = await _challengeRepository.GetChallengeBySubmission(submissionId);
+        var challenge = await _challengeRepo.GetChallengeBySubmission(submissionId);
         return new SubmissionStatus(submission, challenge, challenge.Tips);
     }
 
@@ -111,7 +110,7 @@ public class ChallengeService : IChallengeService
 
     public async Task<IEnumerable<Submission>> GetSubmissionsByChallenge(long challengeId, long userId)
     {
-        var challenge = await _challengeRepository.GetByIdAsync(challengeId);
+        var challenge = await _challengeRepo.GetByIdAsync(challengeId);
         if (challenge == null) throw new NotFoundException("Challenge does not exist");
 
         var admin = await _userRepository.GetAdminByChallenge(challengeId);
@@ -128,7 +127,7 @@ public class ChallengeService : IChallengeService
         if (!await _userRepository.IsUserAuthorizedToEvaluateSubmission(userId, submissionId))
             throw new ForbiddenException("User is not authorized to this submission");
 
-        var challenge = await _challengeRepository.GetChallengeBySubmission(submissionId);
+        var challenge = await _challengeRepo.GetChallengeBySubmission(submissionId);
         var subStatus = new SubmissionStatus(submission, challenge, challenge.Tips);
         subStatus.SetScore(score);
         submission.Score = subStatus.Score;

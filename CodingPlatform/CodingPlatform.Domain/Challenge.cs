@@ -17,14 +17,32 @@ public class Challenge : BaseEntity
     [Required]
     public DateTime EndDate { get; private set; }
 
-    private List<Tip> _tips;
-    public Tournament Tournament { get; private set; }
+    private readonly List<Tip> _tips = new List<Tip>();
+    public IReadOnlyCollection<Tip> Tips => _tips;
 
     private Challenge()
     {
     }
 
-    public Challenge(string title, string description, int durationInHours, Tournament tournament, IEnumerable<string> tips = null)
+    public bool IsActive()
+    {
+        var now = DateTime.UtcNow;
+        return DateCreated <= now && now <= EndDate;
+    }
+
+    private void SetTips(IEnumerable<string> tipDescriptions)
+    {
+        if (tipDescriptions == null) return;
+
+        int count = 1;
+        foreach (string tipDesc in tipDescriptions)
+        {
+            _tips.Add(new Tip(tipDesc, (byte)count));
+            count++;
+        }
+    }
+
+    public static Challenge CreateNew(string title, string description, int durationInHours, IEnumerable<string> tips = null)
     {
         if (string.IsNullOrEmpty(title)) throw new ArgumentNullException(nameof(title));
 
@@ -33,26 +51,15 @@ public class Challenge : BaseEntity
         if (durationInHours < _MIN_CHALLENGE_DURATION || durationInHours > _MAX_CHALLENGE_DURATION)
             throw new ArgumentException(nameof(durationInHours));
 
-        if (tournament == null) throw new ArgumentNullException(nameof(tournament));
-
-        Title = title;
-        Description = description;
-        EndDate = DateCreated.AddHours(durationInHours);
-        SetTips(tips);
-    }
-
-    public void SetTips(IEnumerable<string> tips)
-    {
-        _tips = new List<Tip>();
-        if (tips == null || tips.Count() == 0) return;
-
-        int count = 1;
-        foreach (string tipDesc in tips)
+        var challenge = new Challenge
         {
-            _tips.Add(new Tip(tipDesc, (byte)count));
-            count++;
-        }
-    }
+            Title = title,
+            Description = description
+        };
 
-    public IEnumerable<Tip> Tips => _tips.AsReadOnly();
+        challenge.EndDate = challenge.DateCreated.AddHours(durationInHours);
+        challenge.SetTips(tips);
+
+        return challenge;
+    }
 }

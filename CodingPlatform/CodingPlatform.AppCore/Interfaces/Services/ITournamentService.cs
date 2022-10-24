@@ -8,5 +8,4 @@ public interface ITournamentService
     Task<Tournament> Create(string tournamentName, int maxParticipants, long userId);
     Task<IEnumerable<Tournament>> GetTournaments(TournamentSearch filters);
     Task SubscribeUserRefactor(long tournamentId, long userId);
-    //Task<UserTournamentParticipations> SubscribeUser(long tournamentId, long userId);
 }

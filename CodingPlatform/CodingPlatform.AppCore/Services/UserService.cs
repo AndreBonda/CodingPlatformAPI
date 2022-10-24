@@ -5,74 +5,44 @@ using System.Security.Cryptography;
 using CodingPlatform.AppCore.Interfaces.Repositories;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Domain;
-using Microsoft.IdentityModel.Tokens;
+using CodingPlatform.Domain.Exception;
+using CodingPlatform.Domain.Interfaces.Utility;
 
 namespace CodingPlatform.AppCore.Services;
 
 public class UserService : IUserService
 {
-    //TODO: a lot of coupling inside. Refactor. Methods do a lot of things.
-    private readonly IUserRepository _userRepository;
+    private readonly IUserRepository _userRepo;
+    private readonly IAuthenticationProvider _authProvider;
 
-    public UserService(IUserRepository userRepository)
+
+    public UserService(IUserRepository userRepo, IAuthenticationProvider authProvider)
     {
-        _userRepository = userRepository;
+        _userRepo = userRepo;
+        _authProvider = authProvider;
     }
 
-    public async Task<User> InsertUserEncryptingPassword(string email, string username, string plainTextPassword)
+    public async Task<User> Register(string email, string username, string plainTextPassword)
     {
-        var passwordHash = CreatePasswordHash(plainTextPassword);
-        var user = new User(email, username, passwordHash.PasswordSalt, passwordHash.PasswordHash);
-        return await _userRepository.InsertAsync(user);
+        if (await _userRepo.ExistUserByEmailAsync(email)) throw new BadRequestException("Email already inserted.");
+
+        if (await _userRepo.ExistUserByUsernameAsync(username)) throw new BadRequestException("Username already inserted.");
+
+        var password = _authProvider.HashPassword(plainTextPassword);
+        var user = User.CreateNew(email, username, password.Key, password.ComputedHash);
+
+        return await _userRepo.InsertAsync(user);
     }
 
-    public async Task<string> Login(string email, string plainTextPassword, byte[] salt, byte[] hashPassword, string keyGen)
+    public async Task<string> Login(string email, string plainTextPassword, string keyGen)
     {
-        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentNullException("email required");
-        if (string.IsNullOrWhiteSpace(plainTextPassword))
-            throw new ArgumentNullException("plain text password required");
-        if (hashPassword == null)
-            throw new ArgumentNullException("hash password required");
-        if (salt == null)
-            throw new ArgumentNullException("salt password required");
+        var user = await _userRepo.GetUserByEmailAsync(email);
 
-        if (!VerifyPassword(plainTextPassword, salt, hashPassword))
-            throw new AuthenticationException("wrong password");
+        if (user == null) throw new NotFoundException("User not found.");
 
-        var user = await _userRepository.GetUserByEmail(email);
+        if (_authProvider.VerifyPassword(plainTextPassword, user.PasswordSalt, user.PasswordHash))
+            return _authProvider.GenerateJWT(user.Id, user.Email, keyGen);
 
-        return CreateJwt(user.Id, email, keyGen);
-    }
-
-    private (byte[] PasswordSalt, byte[] PasswordHash) CreatePasswordHash(string plainTextPassword)
-    {
-        using var hmac = new HMACSHA512();
-        return new(
-            hmac.Key,
-            hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(plainTextPassword)));
-    }
-
-    private bool VerifyPassword(string plainTextPassword, byte[] salt, byte[] hashPassword)
-    {
-        using var hmac = new HMACSHA512(salt);
-        return hashPassword.SequenceEqual(hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(plainTextPassword)));
-    }
-
-    private string CreateJwt(long userId, string email, string keyGen)
-    {
-        List<Claim> claims = new List<Claim>()
-        {
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-        };
-
-        var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(keyGen));
-        var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-        var token = new JwtSecurityToken(
-            claims: claims,
-            expires: DateTime.UtcNow.AddDays(1),
-            signingCredentials: cred);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return String.Empty;
     }
 }

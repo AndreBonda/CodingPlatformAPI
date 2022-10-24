@@ -2,5 +2,5 @@
 
 public interface ILeaderboardFactory
 {
-    Leaderboard GetInstance(IEnumerable<Submission> submissions);
+    Leaderboard Create(IEnumerable<Submission> submissions);
 }

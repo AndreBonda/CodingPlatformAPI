@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <Folder Include="Services" />
+      <Folder Include="Utility\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -24,4 +25,7 @@
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.6" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Utility\" />
+    </ItemGroup>
 </Project>

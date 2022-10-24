@@ -19,11 +19,14 @@ namespace CodingPlatform.Infrastructure.Repositories
 
         public async Task<Leaderboard> GetLeaderboard(long tournamentId)
         {
-            var submissions = await _dbCtx.Submissions
-                .Where(s => s.Challenge.Tournament.Id == tournamentId)
-                .ToListAsync();
+            //TODO: refactor
+            //var submissions = await _dbCtx.Submissions
+            //    .Where(s => s.Challenge.Tournament.Id == tournamentId)
+            //    .ToListAsync();
 
-            return _leaderboardFactory.GetInstance(submissions);
+            //return _leaderboardFactory.GetInstance(submissions);
+
+            throw new NotImplementedException();
         }
     }
 }

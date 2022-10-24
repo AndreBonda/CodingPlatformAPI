@@ -10,17 +10,21 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     {
     }
 
-    public async Task<User> GetUserByEmail(string email)
+    public async Task<User> GetUserByEmailAsync(string email)
     {
-        return await _dbCtx.Set<User>()
-            .FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+        if (email == null) throw new ArgumentNullException(nameof(email));
+        return await _dbCtx.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower()); ;
     }
 
-    public async Task<User> GetUserByUsername(string username)
+    public async Task<bool> ExistUserByEmailAsync(string email) => await GetUserByEmailAsync(email) != null;
+
+    public async Task<User> GetUserByUsernameAsync(string username)
     {
         return await _dbCtx.Set<User>()
         .FirstOrDefaultAsync(u => u.Username.ToLower() == username.ToLower());
     }
+
+    public async Task<bool> ExistUserByUsernameAsync(string username) => await GetUserByUsernameAsync(username) != null;
 
     public async Task<User> GetUserBySubmission(long submissionId)
     {
@@ -33,11 +37,13 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 
     public async Task<User> GetAdminByChallenge(long challengeId)
     {
-        return (
-            await _dbCtx.Challenges
-                .Include(c => c.Tournament).ThenInclude(t => t.Admin)
-                .FirstAsync(c => c.Id == challengeId)
-        ).Tournament.Admin;
+        //return (
+        //    await _dbCtx.Challenges
+        //        .Include(c => c.Tournament).ThenInclude(t => t.Admin)
+        //        .FirstAsync(c => c.Id == challengeId)
+        //).Tournament.Admin;
+
+        throw new NotImplementedException();
     }
 
     public async Task<User> GetTournamentAdminAsync(long tournamentId)
@@ -51,12 +57,14 @@ public class UserRepository : BaseRepository<User>, IUserRepository
 
     public async Task<bool> IsUserAuthorizedToEvaluateSubmission(long userId, long submissionId)
     {
-        var sub = await _dbCtx.Submissions
-            .Include(s => s.Challenge)
-            .ThenInclude(c => c.Tournament)
-            .ThenInclude(t => t.Admin)
-            .FirstAsync(s => s.Id == submissionId);
-        return sub.Challenge.Tournament.Admin.Id == userId;
+        //var sub = await _dbCtx.Submissions
+        //    .Include(s => s.Challenge)
+        //    .ThenInclude(c => c.Tournament)
+        //    .ThenInclude(t => t.Admin)
+        //    .FirstAsync(s => s.Id == submissionId);
+        //return sub.Challenge.Tournament.Admin.Id == userId;
+
+        throw new NotImplementedException();
     }
 
     public async Task<IEnumerable<string>> GetSubscribedUsernamesAsync(long tournamentId)

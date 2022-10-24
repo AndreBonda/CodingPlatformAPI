@@ -11,7 +11,7 @@ public class LeaderboardFactory : ILeaderboardFactory
     {
     }
 
-    public Leaderboard GetInstance(IEnumerable<Submission> submissions)
+    public Leaderboard Create(IEnumerable<Submission> submissions)
     {
         var placements = submissions
             .GroupBy(s => s.User.Username)

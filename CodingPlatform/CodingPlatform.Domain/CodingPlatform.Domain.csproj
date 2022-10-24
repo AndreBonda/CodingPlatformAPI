@@ -9,9 +9,13 @@
     <ItemGroup>
       <None Remove="Interfaces\" />
       <None Remove="Factories\" />
+      <None Remove="Interfaces\Factories\" />
+      <None Remove="Interfaces\Utility\" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Interfaces\" />
       <Folder Include="Factories\" />
+      <Folder Include="Interfaces\Factories\" />
+      <Folder Include="Interfaces\Utility\" />
     </ItemGroup>
 </Project>

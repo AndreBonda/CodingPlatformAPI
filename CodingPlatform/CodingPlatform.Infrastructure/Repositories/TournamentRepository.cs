@@ -11,6 +11,7 @@ public class TournamentRepository : BaseRepositoryRefactor<Tournament>, ITournam
     {
     }
 
+    //TODO: indeciso. Non passo dal costruttore. Prendere in carico la costruzione dell'oggetto?
     public override async Task<Tournament> GetByIdAsync(long id) =>
         await _dbCtx.Tournaments
             .Include(t => t.SubscribedUser)
@@ -32,12 +33,12 @@ public class TournamentRepository : BaseRepositoryRefactor<Tournament>, ITournam
         return await results.ToListAsync();
     }
 
-    public async Task<Tournament> GetTournamentByNameAsync(string name)
+    public async Task<bool> TournamentNameExist(string name)
     {
-        if (name == null || string.IsNullOrEmpty(name)) return null;
+        if (string.IsNullOrEmpty(name)) return false;
 
-        return await _dbCtx.Set<Tournament>()
-            .FirstOrDefaultAsync(t => t.Name.ToLower() == name.ToLower());
+        return await _dbCtx.Tournaments
+            .AnyAsync(t => t.Name.ToLower() == name.ToLower());
     }
 
     public async Task<int> GetSubscriberNumberAsync(long tournamentId)
@@ -50,10 +51,12 @@ public class TournamentRepository : BaseRepositoryRefactor<Tournament>, ITournam
 
     public async Task<Tournament> GetTournamentByChallengeAsync(long challengeId)
     {
-        var challenge = await _dbCtx.Challenges
-            .Include(c => c.Tournament)
-            .FirstAsync(c => c.Id == challengeId);
+        //var challenge = await _dbCtx.Challenges
+        //    .Include(c => c.Tournament)
+        //    .FirstAsync(c => c.Id == challengeId);
 
-        return challenge.Tournament;
+        //return challenge.Tournament;
+
+        throw new NotImplementedException();
     }
 }

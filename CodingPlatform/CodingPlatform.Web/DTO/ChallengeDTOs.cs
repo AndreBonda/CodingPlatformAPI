@@ -12,14 +12,13 @@ public class ChallengeDto
     public IEnumerable<string> Tips { get; set; }
 }
 
-public class InfoInProgressChallengeDto
+public class UserChallenges
 {
-    public long ChallengeId { get; set; }
-    public string ChallengeName { get; set; }
-    public DateTime DateStart { get; set; }
-    public DateTime DateEnd { get; set; }
-    public string TournamentName { get; set; }
-    public string Admin { get; set; }
+    public long Id { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
 }
 
 public class CreateChallengeDto

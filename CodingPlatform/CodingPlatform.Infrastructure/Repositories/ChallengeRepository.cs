@@ -10,6 +10,19 @@ public class ChallengeRepository : BaseRepository<Challenge>, IChallengeReposito
     {
     }
 
+    public async Task<IEnumerable<Challenge>> GetChallengesByUser(long userId, bool onlyActive)
+    {
+        var challenges = await _dbCtx.Tournaments
+            .Where(t => t.SubscribedUser.Any(s => s.User.Id == userId))
+            .SelectMany(t => t.Challenges)
+            .ToListAsync();
+
+        if (onlyActive)
+            challenges = challenges.Where(c => c.IsActive()).ToList();
+
+        return challenges;
+    }
+
     public async Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId)
     {
         //var now = DateTime.UtcNow;
@@ -28,21 +41,15 @@ public class ChallengeRepository : BaseRepository<Challenge>, IChallengeReposito
         throw new NotImplementedException();
     }
 
-    public async Task<IEnumerable<Challenge>> GetChallengesAsync()
-    {
-        return await _dbCtx.Challenges
-            .Include(c => c.Tournament).ThenInclude(t => t.Admin)
-            .OrderByDescending(x => x.DateCreated)
-            .ToListAsync();
-    }
-
     public async Task<Challenge> GetActiveChallengeByTournament(long tournamentId, DateTime? now = null)
     {
-        now ??= DateTime.UtcNow;
+        //now ??= DateTime.UtcNow;
 
-        return await _dbCtx.Challenges.FirstOrDefaultAsync(c =>
-            c.Tournament.Id == tournamentId &&
-            c.DateCreated <= now && c.EndDate >= now);
+        //return await _dbCtx.Challenges.FirstOrDefaultAsync(c =>
+        //    c.Tournament.Id == tournamentId &&
+        //    c.DateCreated <= now && c.EndDate >= now);
+
+        throw new NotImplementedException();
     }
 
     public async Task<Challenge> GetChallengeBySubmission(long submissionId)

@@ -21,12 +21,12 @@ public class TournamentService : ITournamentService
 
     public async Task<Tournament> Create(string tournamentName, int maxParticipants, long userId)
     {
-        if (await _tournamentRepository.GetTournamentByNameAsync(tournamentName) != null)
-            throw new BadRequestException("Tournament name exists.");
+        if (await _tournamentRepository.TournamentNameExist(tournamentName))
+            throw new BadRequestException("Tournament name already exists.");
 
         var user = await _userRepository.GetByIdAsync(userId);
-
-        return await _tournamentRepository.InsertAsync(new Tournament(tournamentName, maxParticipants, user));
+        var tournament = Tournament.CreateNew(tournamentName, maxParticipants, user);
+        return await _tournamentRepository.InsertAsync(tournament);
     }
 
     public async Task SubscribeUserRefactor(long tournamentId, long userId)
@@ -35,10 +35,6 @@ public class TournamentService : ITournamentService
         if (tournament == null) throw new NotFoundException(nameof(tournamentId));
 
         var user = await _userRepository.GetByIdAsync(userId);
-
-        //TODO: delete
-        //user.PasswordHash = new byte[0];
-
         tournament.AddSubscriber(user);
         await _tournamentRepository.UpdateAsync(tournament);
     }

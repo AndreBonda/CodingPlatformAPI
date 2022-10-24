@@ -4,13 +4,7 @@ namespace CodingPlatform.AppCore.Interfaces.Repositories;
 
 public interface IChallengeRepository : IRepository<Challenge>
 {
-    /// <summary>
-    /// Return in-progress challenges of the user.
-    /// </summary>
-    /// <param name="userId"></param>
-    Task<IEnumerable<Challenge>> GetActiveChallengesByUser(long userId);
-
-    Task<IEnumerable<Challenge>> GetChallengesAsync();
+    Task<IEnumerable<Challenge>> GetChallengesByUser(long userId, bool onlyActive);
     /// <summary>
     /// Return in progress challenge of the tournament.
     /// </summary>
