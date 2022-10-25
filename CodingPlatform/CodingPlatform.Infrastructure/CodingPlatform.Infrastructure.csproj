@@ -9,6 +9,7 @@
     <ItemGroup>
       <Folder Include="Services" />
       <Folder Include="Utility\" />
+      <Folder Include="Extensions\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,5 +28,6 @@
 
     <ItemGroup>
       <None Remove="Utility\" />
+      <None Remove="Extensions\" />
     </ItemGroup>
 </Project>

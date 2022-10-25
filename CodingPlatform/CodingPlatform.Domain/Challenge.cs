@@ -42,6 +42,8 @@ public class Challenge : BaseEntity
         }
     }
 
+
+
     public static Challenge CreateNew(string title, string description, int durationInHours, IEnumerable<string> tips = null)
     {
         if (string.IsNullOrEmpty(title)) throw new ArgumentNullException(nameof(title));

@@ -9,9 +9,9 @@ public interface IChallengeService
     //    int hours, long userId, IEnumerable<string> tips = null);
 
     Task<Challenge> CreateChallenge(CreateChallengeCmd cmd);
-    Task<IEnumerable<Challenge>> GetChallengesByUser(long userId, bool onlyActive);
+    Task<IEnumerable<Challenge>> GetChallengesByUserAsync(long userId, bool onlyActive);
 
-    Task<Submission> StartChallenge(long challengeId, long userId);
+    Task<Submission> StartChallengeAsync(long challengeId, long userId);
     Task<SubmissionStatus> GetSubmissionStatus(long submissionId, long userId);
     Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId);
     Task<SubmissionStatus> EndSubmission(long submissionId, string content, long userId);

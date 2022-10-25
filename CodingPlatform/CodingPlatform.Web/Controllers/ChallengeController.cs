@@ -48,7 +48,7 @@ public class ChallengeController : CustomControllerBase
     [HttpGet("challenges/user")]
     public async Task<IActionResult> GetChallenges([FromQuery] bool onlyActive)
     {
-        var userInProgressChallenges = await _challengeService.GetChallengesByUser(GetCurrentUserId(), onlyActive);
+        var userInProgressChallenges = await _challengeService.GetChallengesByUserAsync(GetCurrentUserId(), onlyActive);
 
         return Ok(userInProgressChallenges.Select(c => new UserChallenges
         {
@@ -99,7 +99,7 @@ public class ChallengeController : CustomControllerBase
     [HttpPost("challenge_user_start/{challengeId}")]
     public async Task<IActionResult> StartUserChallenge(long challengeId)
     {
-        var submission = await _challengeService.StartChallenge(challengeId, GetCurrentUserId());
+        var submission = await _challengeService.StartChallengeAsync(challengeId, GetCurrentUserId());
         return Created(nameof(StartUserChallenge), new
         {
             IdSubmission = submission.Id,

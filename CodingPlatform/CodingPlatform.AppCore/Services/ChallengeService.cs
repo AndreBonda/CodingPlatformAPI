@@ -13,7 +13,7 @@ public class ChallengeService : IChallengeService
     private readonly ITournamentRepository _tournamentRepo;
     private readonly IChallengeRepository _challengeRepo;
     private readonly ISubmissionRepository _submissionRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUserRepository _userRepo;
 
     public ChallengeService(ITournamentRepository tournamentRepository, IChallengeRepository challengeRepository,
         ISubmissionRepository submissionRepository, IUserRepository userRepository)
@@ -21,7 +21,7 @@ public class ChallengeService : IChallengeService
         _tournamentRepo = tournamentRepository;
         _challengeRepo = challengeRepository;
         _submissionRepository = submissionRepository;
-        _userRepository = userRepository;
+        _userRepo = userRepository;
     }
 
     public async Task<Challenge> CreateChallenge(CreateChallengeCmd cmd)
@@ -29,7 +29,7 @@ public class ChallengeService : IChallengeService
         var tournament = await _tournamentRepo.GetByIdAsync(cmd.TournamentId);
         if (tournament == null) throw new NotFoundException(nameof(cmd.TournamentId));
 
-        var user = await _userRepository.GetByIdAsync(cmd.UserId);
+        var user = await _userRepo.GetByIdAsync(cmd.UserId);
         var challenge = Challenge.CreateNew(cmd.Title,
                 cmd.Description,
                 cmd.Hours,
@@ -40,39 +40,27 @@ public class ChallengeService : IChallengeService
         return challenge;
     }
 
-    public async Task<IEnumerable<Challenge>> GetChallengesByUser(long userId, bool onlyActive) =>
-        await _challengeRepo.GetChallengesByUser(userId, onlyActive);
-
-    public async Task<Submission> StartChallenge(long challengeId, long userId)
+    public async Task<IEnumerable<Challenge>> GetChallengesByUserAsync(long userId, bool onlyActive)
     {
-        //    var challenge = await _challengeRepository.GetByIdAsync(challengeId);
-        //    if (challenge == null) throw new NotFoundException("Challenge does not exist");
+        var subscribedTournaments = await _tournamentRepo.GetSubscribedTournamentsByUserAsync(userId);
+        if (subscribedTournaments.Count() == 0) return Enumerable.Empty<Challenge>();
 
-        //    var tournament = await _tournamentRepository.GetTournamentByChallengeAsync(challengeId);
-        //    if (!await _tournamentRepository.IsUserSubscribedAsync(tournament.Id, userId))
-        //        throw new BadRequestException("User is not subscribed to this tournament");
+        var challenges = subscribedTournaments.SelectMany(t => t.Challenges);
 
-        //    if (!challenge.IsInProgress())
-        //        throw new BadRequestException("Challenge is not in progress");
+        if (onlyActive)
+            challenges = challenges.Where(c => c.IsActive());
 
-        //    var submission = await _submissionRepository.GetSubmissionByUserAndChallengeAsync(userId, challengeId);
-        //    if (submission != null)
-        //        throw new BadRequestException($"User has already started. Submission id: {submission.Id}");
+        return challenges;
+    }
 
-        //    var user = await _userRepository.GetByIdAsync(userId);
-        //    var newSubmission = new Submission()
-        //    {
-        //        DateSubmitted = null,
-        //        Challenge = challenge,
-        //        User = user,
-        //        Content = string.Empty,
-        //        TipsNumber = 0,
-        //        Score = 0
-        //    };
-        //    newSubmission = await _submissionRepository.InsertAsync(newSubmission);
+    public async Task<Submission> StartChallengeAsync(long challengeId, long userId)
+    {
+        var tournament = await _tournamentRepo.GetTournamentByChallengeAsync(challengeId);
+        if (tournament == null) throw new NotFoundException("Challenge does not exist");
 
-        //    return newSubmission;
-        throw new Exception();
+        var user = await _userRepo.GetByIdAsync(userId);
+        var submission = tournament.StartChallenge(user);
+        return submission;
     }
 
     public async Task<SubmissionStatus> GetSubmissionStatus(long submissionId, long userId)
@@ -80,7 +68,7 @@ public class ChallengeService : IChallengeService
         var submission = await _submissionRepository.GetByIdAsync(submissionId);
         if (submission == null) throw new NotFoundException("Submission does not exist");
 
-        var user = await _userRepository.GetUserBySubmission(submissionId);
+        var user = await _userRepo.GetUserBySubmission(submissionId);
         if (userId != user.Id) throw new ForbiddenException("User is not authorized to this submission");
 
         var challenge = await _challengeRepo.GetChallengeBySubmission(submissionId);
@@ -113,7 +101,7 @@ public class ChallengeService : IChallengeService
         var challenge = await _challengeRepo.GetByIdAsync(challengeId);
         if (challenge == null) throw new NotFoundException("Challenge does not exist");
 
-        var admin = await _userRepository.GetAdminByChallenge(challengeId);
+        var admin = await _userRepo.GetAdminByChallenge(challengeId);
         if (userId != admin.Id) throw new ForbiddenException("User is not to this challenge");
 
         return await _submissionRepository.GetSubmissionsByChallengeAsync(challengeId);
@@ -124,7 +112,7 @@ public class ChallengeService : IChallengeService
         var submission = await _submissionRepository.GetByIdAsync(submissionId);
         if (submission == null) throw new NotFoundException("Submission does not exist");
 
-        if (!await _userRepository.IsUserAuthorizedToEvaluateSubmission(userId, submissionId))
+        if (!await _userRepo.IsUserAuthorizedToEvaluateSubmission(userId, submissionId))
             throw new ForbiddenException("User is not authorized to this submission");
 
         var challenge = await _challengeRepo.GetChallengeBySubmission(submissionId);

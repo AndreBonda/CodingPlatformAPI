@@ -22,15 +22,18 @@ public class Tournament : BaseEntity
     private readonly List<Challenge> _challenges = new();
     public IReadOnlyCollection<Challenge> Challenges => _challenges;
 
+    private readonly List<Submission> _submissions = new();
+    public IReadOnlyCollection<Submission> Submissions => _submissions;
+
     private Tournament()
     { }
 
     public void AddSubscriber(User user)
     {
         if (user == null) throw new NotFoundException(nameof(user));
-        if (IsUserAdmin(user)) throw new BadRequestException("An admin can't subscribe to his tournament");
-        if (_subscribedUser.Any(s => s.User.Id == user.Id)) throw new BadRequestException("User already subscribed");
-        if (_subscribedUser.Count() >= MaxParticipants) throw new BadRequestException("The tournament is full");
+        if (IsUserAdmin(user)) throw new BadRequestException("An admin can't subscribe to his tournament.");
+        if (IsUserSubscribed(user)) throw new BadRequestException("User already subscribed.");
+        if (IsTournamentFull()) throw new BadRequestException("The tournament is full.");
 
         _subscribedUser.Add(new Subscription(user));
     }
@@ -39,21 +42,62 @@ public class Tournament : BaseEntity
     {
         if (challenge == null) throw new ArgumentNullException(nameof(challenge));
         if (user == null) throw new ArgumentNullException(nameof(user));
-        if (!IsUserAdmin(user)) throw new BadRequestException("User is not the admin of the tournament");
-        if (ChallengeAlreadyInProgress()) throw new BadRequestException("A challenge is already in progress");
+        if (!IsUserAdmin(user)) throw new BadRequestException("User is not the admin of the tournament.");
+        if (IsChallengeInProgress()) throw new BadRequestException("A challenge is already in progress for this tournament.");
 
         _challenges.Add(challenge);
     }
 
-    public int SubscribedNumber => _subscribedUser.Count();
+    public int SubscribedNumber() => _subscribedUser.Count();
 
-    public int AvailableSeats => MaxParticipants - SubscribedNumber;
+    public int AvailableSeats() => MaxParticipants - SubscribedNumber();
+
+    public bool IsTournamentFull() => AvailableSeats() == 0;
 
     public bool IsUserAdmin(User user) => user?.Id == Admin.Id;
 
-    public bool ChallengeAlreadyInProgress() => ChallengeInProgress() != null;
+    public bool IsChallengeInProgress() => GetChallengeInProgress() != null;
 
-    public Challenge ChallengeInProgress() => _challenges.FirstOrDefault(c => c.IsActive());
+    public Challenge GetChallengeInProgress() => _challenges.FirstOrDefault(c => c.IsActive());
+
+    public bool IsUserSubscribed(User user) => _subscribedUser.Any(s => user?.Id == s.User.Id);
+
+    /// <summary>
+    /// Returns true if the user has already started the challenge in progress for this tournament.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="challenge"></param>
+    /// <returns></returns>
+    public bool HasUserStartedChallenge(User user, Challenge challenge)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+
+        if (challenge == null) throw new ArgumentNullException(nameof(challenge));
+
+        return _submissions.Any(s => user.Id == s.User.Id && challenge.Id == s.Challenge.Id);
+    }
+
+
+    public Submission StartChallenge(User user)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
+
+        if (IsUserAdmin(user)) throw new BadRequestException("An admin can't start a challenge.");
+
+        if (!IsUserSubscribed(user)) throw new BadRequestException("User is not subscribed to this tournament.");
+
+        var challenge = GetChallengeInProgress();
+        if (challenge == null) throw new BadRequestException("A challenge is not in progress for this tournament");
+
+        if (HasUserStartedChallenge(user, challenge))
+            throw new BadRequestException("User already started the challenge");
+
+        var submission = Submission.CreateNew(user, Admin, challenge);
+        _submissions.Add(submission);
+        return submission;
+    }
+
+
 
     public static Tournament CreateNew(string name, int maxParticipants, User admin)
     {

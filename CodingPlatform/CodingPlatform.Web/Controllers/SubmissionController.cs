@@ -1,11 +1,10 @@
-﻿using System;
-namespace CodingPlatform.Web.Controllers
+﻿namespace CodingPlatform.Web.Controllers;
+
+public class SubmissionController : CustomControllerBase
 {
-    public class SubmissionController
+    public SubmissionController(IHttpContextAccessor httpContextAccessor)
+        : base(httpContextAccessor)
     {
-        public SubmissionController()
-        {
-        }
     }
 }
 

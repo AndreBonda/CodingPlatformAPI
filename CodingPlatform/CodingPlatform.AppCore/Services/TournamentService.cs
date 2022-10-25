@@ -40,4 +40,6 @@ public class TournamentService : ITournamentService
     }
 
     public async Task<IEnumerable<Tournament>> GetTournaments(TournamentSearch filters) => await _tournamentRepository.GetFilteredAsync(filters);
+
+
 }
