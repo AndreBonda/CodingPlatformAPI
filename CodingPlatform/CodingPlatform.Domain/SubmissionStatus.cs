@@ -23,8 +23,8 @@ public class SubmissionStatus
     public SubmissionStatus(Submission submission, Challenge challenge, IEnumerable<Tip> challengeTips)
     {
         SubmissionId = submission.Id;
-        StartDate = submission.DateCreated;
-        SubmitDate = submission.DateSubmitted;
+        StartDate = submission.CreateDate;
+        SubmitDate = submission.SubmitDate;
         EndDate = challenge.EndDate;
         ChallengeTitle = challenge.Title;
         ChallengeDescription = challenge.Description;

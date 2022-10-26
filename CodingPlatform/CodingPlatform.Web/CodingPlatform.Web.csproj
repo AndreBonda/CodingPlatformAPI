@@ -26,4 +26,10 @@
       <ProjectReference Include="..\CodingPlatform.Infrastructure\CodingPlatform.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Extensions\" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Extensions\" />
+    </ItemGroup>
 </Project>

@@ -32,7 +32,7 @@ public class UserController : ControllerBase
             Id = user.Id,
             Email = user.Email,
             UserName = user.Username,
-            DateCreated = user.DateCreated
+            DateCreated = user.CreateDate
         });
     }
 

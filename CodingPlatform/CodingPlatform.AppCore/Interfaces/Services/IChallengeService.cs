@@ -5,16 +5,17 @@ namespace CodingPlatform.AppCore.Interfaces.Services;
 
 public interface IChallengeService
 {
-    //Task<Challenge> CreateChallenge(long tournamentId, string title, string description,
-    //    int hours, long userId, IEnumerable<string> tips = null);
-
     Task<Challenge> CreateChallenge(CreateChallengeCmd cmd);
     Task<IEnumerable<Challenge>> GetChallengesByUserAsync(long userId, bool onlyActive);
 
     Task<Submission> StartChallengeAsync(long challengeId, long userId);
-    Task<SubmissionStatus> GetSubmissionStatus(long submissionId, long userId);
-    Task<SubmissionStatus> AddSubmissionTip(long submissionId, long userId);
-    Task<SubmissionStatus> EndSubmission(long submissionId, string content, long userId);
-    Task<IEnumerable<Submission>> GetSubmissionsByChallenge(long challengeId, long userId);
-    Task<SubmissionStatus> EvaluateSubmission(long submissionId, int score, long userId);
+    Task<Submission> GetSubmissionStatusAsync(long challengeId, long userId);
+    /// <summary>
+    /// Requests for a new tip.
+    /// </summary>
+    /// <param name="challengeId"></param>
+    /// <param name="userId"></param>
+    /// <returns>Returns the new tip</returns>
+    Task<Tip> RequestNewTipAsync(long challengeId, long userId);
+    Task<Submission> EndChallengeAsync(long challengeId, string content, long userId);
 }

@@ -77,7 +77,13 @@ public class Tournament : BaseEntity
         return _submissions.Any(s => user.Id == s.User.Id && challenge.Id == s.Challenge.Id);
     }
 
-
+    /// <summary>
+    /// Start the challenge in progess for the tournament.
+    /// </summary>
+    /// <param name="user"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="BadRequestException"></exception>
     public Submission StartChallenge(User user)
     {
         if (user == null) throw new ArgumentNullException(nameof(user));
@@ -97,7 +103,15 @@ public class Tournament : BaseEntity
         return submission;
     }
 
+    public Submission GetSubmissionStatus(User user, long challengeId)
+    {
+        if (user == null) throw new ArgumentNullException(nameof(user));
 
+        var submission = _submissions
+            .FirstOrDefault(s => s.Challenge.Id == challengeId && s.User.Id == user.Id);
+
+        return submission ?? throw new NotFoundException("No submission found");
+    }
 
     public static Tournament CreateNew(string name, int maxParticipants, User admin)
     {

@@ -1,6 +1,7 @@
 using CodingPlatform.AppCore.Filters;
 using CodingPlatform.AppCore.Interfaces.Services;
 using CodingPlatform.Web.DTO;
+using CodingPlatform.Web.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,16 +30,7 @@ public class TournamentController : CustomControllerBase
 
         var tournaments = await _tournamentService.GetTournaments(search);
 
-        return Ok(tournaments.Select(t => new TournamentDto()
-        {
-            Id = t.Id,
-            Name = t.Name,
-            DateCreated = t.DateCreated,
-            MaxParticipants = t.MaxParticipants,
-            UsernameAdmin = t.Admin.Username,
-            SubscriberNumber = t.SubscribedNumber,
-            AvailableSeats = t.AvailableSeats
-        }));
+        return Ok(tournaments.Select(t => t.ToDTO()));
     }
 
     [HttpPost("tournament")]
@@ -47,16 +39,7 @@ public class TournamentController : CustomControllerBase
         var tournament = await _tournamentService.Create(param.TournamentName, param.MaxParticipants,
             GetCurrentUserId());
 
-        return Created(nameof(CreateTournament), new TournamentDto()
-        {
-            Id = tournament.Id,
-            Name = tournament.Name,
-            DateCreated = tournament.DateCreated,
-            MaxParticipants = tournament.MaxParticipants,
-            UsernameAdmin = tournament.Admin.Username,
-            SubscriberNumber = tournament.SubscribedNumber,
-            AvailableSeats = tournament.AvailableSeats
-        });
+        return Created(nameof(CreateTournament), tournament.ToDTO());
     }
 
     [HttpPost("subscription/{tournamentId}")]

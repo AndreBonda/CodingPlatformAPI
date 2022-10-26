@@ -6,7 +6,7 @@ namespace CodingPlatform.Web.Controllers;
 public class CustomControllerBase : ControllerBase
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    
+
     public CustomControllerBase(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;

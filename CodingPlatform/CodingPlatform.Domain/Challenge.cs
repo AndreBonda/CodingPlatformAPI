@@ -27,8 +27,10 @@ public class Challenge : BaseEntity
     public bool IsActive()
     {
         var now = DateTime.UtcNow;
-        return DateCreated <= now && now <= EndDate;
+        return CreateDate <= now && now <= EndDate;
     }
+
+    public int TotalTips() => _tips.Count();
 
     private void SetTips(IEnumerable<string> tipDescriptions)
     {
@@ -41,8 +43,6 @@ public class Challenge : BaseEntity
             count++;
         }
     }
-
-
 
     public static Challenge CreateNew(string title, string description, int durationInHours, IEnumerable<string> tips = null)
     {
@@ -59,7 +59,7 @@ public class Challenge : BaseEntity
             Description = description
         };
 
-        challenge.EndDate = challenge.DateCreated.AddHours(durationInHours);
+        challenge.EndDate = challenge.CreateDate.AddHours(durationInHours);
         challenge.SetTips(tips);
 
         return challenge;
