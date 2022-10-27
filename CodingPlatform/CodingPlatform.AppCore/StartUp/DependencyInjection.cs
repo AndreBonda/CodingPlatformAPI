@@ -14,6 +14,8 @@ public static class DependencyInjection
         services.AddScoped<ITournamentService, TournamentService>();
         services.AddScoped<IChallengeService, ChallengeService>();
         services.AddScoped<ILeaderboardService, LeaderboardService>();
+        services.AddScoped<ISubmissionService, SubmissionService>();
+
         services.AddScoped<ILeaderboardFactory, LeaderboardFactory>();
         return services;
     }

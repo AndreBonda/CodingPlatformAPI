@@ -16,49 +16,43 @@ public abstract class BaseRepository<TEntity> : IRepository<TEntity>
         _dbCtx = dbCtx;
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync(BaseSearch filters)
-    {
-        var results = _dbCtx.Set<TEntity>()
-            .Take(filters.Take);
+    /*
+     * Perchè questo? A differenza degli altri metodi base, il GetById non può essere implementato come default
+     * poichè non sapre a priori gli Include() dell'EF da chiamare per mantenere tutte le invarianti, tuttavia mi piace
+     * avere questo metodo nell'interfaccia IRepository.
+     * Ho individuato due soluzioni:
+     * a) Rendere il metodo astratto e implementato in ogni repository che lo eredità, tuttavia devo implementare il metodo
+     *    anche nei repository che non lo usano.
+     * b) Renderlo virtuale in modo tale che posso decidere di non overridarlo nei repository che lo ereditano, tuttavia se
+     *    tale metodo viene invocato e non "overridato" si spacca.
+     */
+    public virtual Task<TEntity> GetByIdAsync(long id) => throw new NotSupportedException();
 
-        return await results.ToListAsync();
+    public async Task DeleteAsync(long id)
+    {
+        var entity = await GetByIdAsync(id);
+        if (entity == null) return;
+        _dbCtx.Set<TEntity>().Remove(entity);
+        await SaveAsync();
     }
 
-    public async Task<TEntity> GetByIdAsync(long id)
-    {
-        return await _dbCtx.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
-    }
+    public async Task<bool> ExistAsync(long id) => await _dbCtx.Set<TEntity>().AnyAsync(e => e.Id == id);
 
     public async Task<TEntity> InsertAsync(TEntity entity)
     {
         var inserted = await _dbCtx.Set<TEntity>().AddAsync(entity);
-        await _dbCtx.SaveChangesAsync();
-        return inserted.Entity;
-    }
-
-    public async Task<TEntity> DeleteAsync(long id)
-    {
-        var entity = await GetByIdAsync(id);
-        _dbCtx.Set<TEntity>().Remove(entity);
-        await _dbCtx.SaveChangesAsync();
-        return entity;
+        await SaveAsync();
+        return await GetByIdAsync(inserted.Entity.Id);
     }
 
     public async Task<TEntity> UpdateAsync(TEntity entity)
     {
         var dbEntity = await GetByIdAsync(entity.Id);
-        if (dbEntity == null)
-            return null;
-
+        if (dbEntity == null) return null;
         _dbCtx.Entry(dbEntity).CurrentValues.SetValues(entity);
-        await _dbCtx.SaveChangesAsync();
-        return dbEntity;
+        await SaveAsync();
+        return await GetByIdAsync(entity.Id);
     }
 
-    protected IQueryable<TEntity> SetPagination(IQueryable<TEntity> query, BaseSearch filters)
-    {
-        query = query
-            .Take(filters.Take);
-        return query;
-    }
+    protected async Task SaveAsync() => await _dbCtx.SaveChangesAsync();
 }

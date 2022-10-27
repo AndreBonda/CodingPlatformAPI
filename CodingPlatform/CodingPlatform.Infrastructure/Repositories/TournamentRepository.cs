@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CodingPlatform.Infrastructure.Repositories;
 
-public class TournamentRepository : BaseRepositoryRefactor<Tournament>, ITournamentRepository
+public class TournamentRepository : BaseRepository<Tournament>, ITournamentRepository
 {
     public TournamentRepository(AppDbContext dbCtx) : base(dbCtx)
     {
@@ -38,14 +38,6 @@ public class TournamentRepository : BaseRepositoryRefactor<Tournament>, ITournam
 
         return await _dbCtx.Tournaments
             .AnyAsync(t => t.Name.ToLower() == name.ToLower());
-    }
-
-    public async Task<int> GetSubscriberNumberAsync(long tournamentId)
-    {
-        //return await _dbCtx.Set<UserTournamentParticipations>()
-        //    .Where(t => t.Tournament.Id == tournamentId)
-        //    .CountAsync();
-        throw new NotImplementedException();
     }
 
     public async Task<Tournament> GetTournamentByChallengeAsync(long challengeId) =>

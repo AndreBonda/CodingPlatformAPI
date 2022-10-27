@@ -12,6 +12,7 @@ public static class ExtensionsToDTO
             StartDate = submission.Challenge.CreateDate,
             EndDate = submission.Challenge.EndDate,
             SubmitDate = submission.SubmitDate,
+            EvaluateDate = submission.EvaluateDate,
             Title = submission.Challenge.Title,
             Description = submission.Challenge.Description,
             Content = submission.Content,

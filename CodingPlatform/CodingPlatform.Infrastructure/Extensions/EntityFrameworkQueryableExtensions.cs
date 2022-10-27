@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CodingPlatform.Infrastructure.Extensions
 {
+    //TODO: non bellissimo
     public static class EntityFrameworkQueryableExtensions
     {
         public static IQueryable<Tournament> StandardInclude(this DbSet<Tournament> set)
         {
-            //TODO: non bellissimo
             return set
                 .Include(t => t.Challenges)
                     .ThenInclude(c => c.Tips)
@@ -18,7 +18,17 @@ namespace CodingPlatform.Infrastructure.Extensions
                 .Include(t => t.Submissions)
                     .ThenInclude(s => s.Admin)
                 .Include(t => t.Submissions)
-                    .ThenInclude(s => s.User);
+                    .ThenInclude(s => s.User)
+                .Include(t => t.Submissions)
+                    .ThenInclude(s => s.Challenge);
+        }
+
+        public static IQueryable<Submission> StandardInclude(this DbSet<Submission> set)
+        {
+            return set
+                .Include(s => s.User)
+                .Include(s => s.Admin)
+                .Include(s => s.Challenge);
         }
     }
 }

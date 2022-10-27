@@ -18,3 +18,9 @@ public class SubmissionStatusDto : SubmissionDto
     public int ChallengeTipAvailableNumber { get; set; }
     public int RemainingTipsNumber { get; set; }
 }
+
+public class SearchSubmissionDTO
+{
+    public bool OnlySubmitted { get; set; }
+    public bool ExcludeEvaluated { get; set; }
+}

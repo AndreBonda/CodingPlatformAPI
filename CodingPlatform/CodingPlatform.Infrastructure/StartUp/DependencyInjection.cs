@@ -16,6 +16,8 @@ public static class DependencyInjection
         services.AddScoped<IChallengeRepository, ChallengeRepository>();
         services.AddScoped<ISubmissionRepository, SubmissionRepository>();
         services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
+        services.AddScoped<ISubmissionRepository, SubmissionRepository>();
+
         services.AddSingleton<IAuthenticationProvider, SHA512AuthenticationProvider>();
 
         return services;

@@ -5,10 +5,15 @@ namespace CodingPlatform.Domain;
 
 public class Submission : BaseEntity
 {
+    private const decimal _MAX_STARTING_SCORE = 5;
+    private const decimal _MIN_STARTING_SCORE = 0;
+    private const decimal _TIP_MALUS_PERCENTAGE = 0.1m;
+
     public byte TipsNumber { get; private set; }
     public DateTime? SubmitDate { get; private set; }
     public string Content { get; private set; }
     public decimal Score { get; private set; }
+    public DateTime? EvaluateDate { get; set; }
     [Required]
     public User User { get; private set; }
     [Required]
@@ -57,9 +62,44 @@ public class Submission : BaseEntity
 
     public bool IsSubmitted() => SubmitDate.HasValue;
 
+    public bool IsEvaluated() => EvaluateDate.HasValue;
+
+    public void Evaluate(int score, long userId)
+    {
+        VerifyAdmin(userId);
+
+        if (!IsSubmitted()) throw new BadRequestException("You can evaluate only submitted submissioms");
+
+        EvaluateDate = DateTime.UtcNow;
+        Score = CalculateFinalScore(score);
+    }
+
+    //TODO: spostare in una classe ad hoc?
+    /// <summary>
+    /// Calculates the final score starting from the initial score passed as a parameter.
+    /// </summary>
+    /// <param name="initialScore">Initial score assigned by admin</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public decimal CalculateFinalScore(int initialScore)
+    {
+        if (initialScore < _MIN_STARTING_SCORE || initialScore > _MAX_STARTING_SCORE)
+            throw new ArgumentOutOfRangeException(nameof(initialScore));
+
+        decimal tipMalusValue = _MAX_STARTING_SCORE * _TIP_MALUS_PERCENTAGE;
+
+        // Use Max to avoid negative final-score
+        return Math.Max(0, initialScore - tipMalusValue * TipsNumber);
+    }
+
     private void VerifyUser(long userId)
     {
         if (userId != User.Id) throw new ForbiddenException("User not allowed to this submission");
+    }
+
+    private void VerifyAdmin(long userId)
+    {
+        if (userId != Admin.Id) throw new ForbiddenException("Only the admin can evaluate this submission");
     }
 
     public static Submission CreateNew(User user, User admin, Challenge challenge)
