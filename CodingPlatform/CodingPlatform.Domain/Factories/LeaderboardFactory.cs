@@ -13,6 +13,8 @@ public class LeaderboardFactory : ILeaderboardFactory
 
     public Leaderboard Create(IEnumerable<Submission> submissions)
     {
+        if (submissions == null) throw new ArgumentNullException(nameof(submissions));
+
         var placements = submissions
             .GroupBy(s => s.User.Username)
             .Select(grouped => new Placement
